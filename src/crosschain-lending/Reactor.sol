@@ -20,10 +20,10 @@ contract ReactiveBridge is IReactive, AbstractReactive {
 
     // event on origin chain
     uint256 private constant COLLATERAL_DEPOSITED_EVENT_TOPIC_0 =
-        0x36509f74dad6985a78ccd85a0c2061d37ebaefb95118163c8d01dd0ba8580f96;
+        0xf05bb473a70941908f1fc5e323b18524b238370f80daa13ca595a83041403c82;
     // event on destination chain
     uint256 private constant LOAN_REPAID_EVENT_TOPIC_0 =
-        0x36509f74dad6985a78ccd85a0c2061d37ebaefb95118163c8d01dd0ba8580f96;
+        0xc701461b765fed67c198ae04ba7565349a5cddf506bdb333ee116a3f28fc0832;
     // states for the contract
     uint256 private immutable originChainId;
     uint256 private immutable destinationChainId;

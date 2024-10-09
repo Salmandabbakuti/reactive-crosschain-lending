@@ -10,11 +10,16 @@ contract CrossLoan is AbstractCallback {
 
     event LoanIssued(
         address indexed txOrigin,
-        address indexed caller
+        address indexed caller,
         address indexed user,
         uint256 amount
     );
-    event LoanRepaid(address indexed origin, uint256 indexed chainId, address indexed user, uint256 amount);
+    event LoanRepaid(
+        address indexed origin,
+        uint256 indexed chainId,
+        address indexed user,
+        uint256 amount
+    );
 
     receive() external payable {}
 

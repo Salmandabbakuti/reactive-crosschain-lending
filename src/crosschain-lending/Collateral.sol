@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "../AbstractCallback.sol";
 
 contract Collateral is AbstractCallback {
+    address owner;
     mapping(address => uint256) public collateralAmount;
 
     event CollateralDeposited(
@@ -47,5 +48,14 @@ contract Collateral is AbstractCallback {
         // Logic to release collateral after repayment
         collateralAmount[user] -= amount;
         emit CollateralReleased(tx.origin, msg.sender, user, amount);
+    }
+
+    /**
+     * @notice Withdraws the contract balance to the owner
+     * @param _amount Amount to withdraw
+     */
+    function withdraw(uint256 _amount) external onlyOwner {
+        require(_amount <= address(this).balance, "Not enough balance");
+        payable(owner).transfer(_amount);
     }
 }

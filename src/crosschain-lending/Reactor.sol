@@ -2,9 +2,9 @@
 
 pragma solidity >=0.8.0;
 
-import "../../IReactive.sol";
-import "../../AbstractReactive.sol";
-import "../../ISystemContract.sol";
+import "../IReactive.sol";
+import "../AbstractReactive.sol";
+import "../ISystemContract.sol";
 
 contract ReactiveBridge is IReactive, AbstractReactive {
     event Event(
@@ -18,15 +18,17 @@ contract ReactiveBridge is IReactive, AbstractReactive {
         uint256 counter
     );
 
-    uint256 private constant BRIDGE_REQUEST_EVENT_TOPIC_0 =
+    // event on origin chain
+    uint256 private constant COLLATERAL_DEPOSITED_EVENT_TOPIC_0 =
         0x36509f74dad6985a78ccd85a0c2061d37ebaefb95118163c8d01dd0ba8580f96;
-    uint256 public origin1ChainId;
-    uint256 public origin2ChainId;
-    uint64 private constant GAS_LIMIT = 1000000;
-    address public origin1;
-    address public origin2;
-
-    // State specific to reactive network instance of the contract
+    // event on destination chain
+    uint256 private constant LOAN_REPAID_EVENT_TOPIC_0 =
+        0x36509f74dad6985a78ccd85a0c2061d37ebaefb95118163c8d01dd0ba8580f96;
+    // states for the contract
+    uint256 private immutable originChainId;
+    uint256 private immutable destinationChainId;
+    address private immutable origin;
+    address private immutable destination;
 
     // State specific to ReactVM instance of the contract
 
@@ -34,21 +36,21 @@ contract ReactiveBridge is IReactive, AbstractReactive {
 
     constructor(
         address _service,
-        address _origin1,
-        address _origin2,
-        uint256 _origin1ChainId,
-        uint256 _origin2ChainId
+        address _origin,
+        address _destination,
+        uint256 _originChainId,
+        uint256 _destinationChainId
     ) {
-        origin1ChainId = _origin1ChainId;
-        origin2ChainId = _origin2ChainId;
-        origin1 = _origin1;
-        origin2 = _origin2;
+        originChainId = _originChainId;
+        destinationChainId = _destinationChainId;
+        origin = _origin;
+        destination = _destination;
         service = ISystemContract(payable(_service));
         bytes memory payload1 = abi.encodeWithSignature(
             "subscribe(uint256,address,uint256,uint256,uint256,uint256)",
-            _origin1ChainId,
-            _origin1,
-            BRIDGE_REQUEST_EVENT_TOPIC_0,
+            _originChainId,
+            _origin,
+            COLLATERAL_DEPOSITED_EVENT_TOPIC_0,
             REACTIVE_IGNORE,
             REACTIVE_IGNORE,
             REACTIVE_IGNORE
@@ -57,9 +59,9 @@ contract ReactiveBridge is IReactive, AbstractReactive {
         vm = !subscription_result1;
         bytes memory payload2 = abi.encodeWithSignature(
             "subscribe(uint256,address,uint256,uint256,uint256,uint256)",
-            _origin2ChainId,
-            _origin2,
-            BRIDGE_REQUEST_EVENT_TOPIC_0,
+            _destinationChainId,
+            _destination,
+            LOAN_REPAID_EVENT_TOPIC_0,
             REACTIVE_IGNORE,
             REACTIVE_IGNORE,
             REACTIVE_IGNORE
@@ -107,23 +109,40 @@ contract ReactiveBridge is IReactive, AbstractReactive {
             data,
             ++counter
         );
-        // Decoding receiver and amount from the event data
-        (, , address receiver, uint256 amount) = abi.decode(
-            data,
-            (address, uint256, address, uint256)
-        );
-        bytes memory payload = abi.encodeWithSignature(
-            "bridgeMint(address,address,uint256)", // first 160 bits will be replaced by reactvm address
-            address(0), // Eventually be replaced with Reactvm address
-            receiver,
-            amount
-        );
-        // Getting the destination chain ID and address. retrieve opposite chain ID and address from the current `chain_id` and `origin`
-        uint256 destinationChainId = chain_id == origin1ChainId
-            ? origin2ChainId
-            : origin1ChainId;
-        address destination = _contract == origin1 ? origin2 : origin1;
-        emit Callback(destinationChainId, destination, GAS_LIMIT, payload);
+        // Gas limit for the callback. Update the gas limit according to the callback function
+        uint64 GAS_LIMIT = 1000000;
+        if (topic_0 == COLLATERAL_DEPOSITED_EVENT_TOPIC_0) {
+            // logic to handle collateral deposited event
+            // call issueLoan function on destination chain
+
+            // Decoding collatoral deposited event data
+            (, , address user, uint256 amount) = abi.decode(
+                data,
+                (address, uint256, address, uint256)
+            );
+            bytes memory payload = abi.encodeWithSignature(
+                "issueLoan(address,address,uint256)", // first 160 bits will be replaced by reactvm address
+                address(0), // Eventually be replaced with Reactvm address
+                user,
+                amount
+            );
+            emit Callback(destinationChainId, destination, GAS_LIMIT, payload);
+        } else if (topic_0 == LOAN_REPAID_EVENT_TOPIC_0) {
+            // logic to handle loan repaid event
+            // call releaseCollateral function on origin chain
+            // Decoding loan repaid event data
+            (, , address user, uint256 amount) = abi.decode(
+                data,
+                (address, uint256, address, uint256)
+            );
+            bytes memory payload = abi.encodeWithSignature(
+                "releaseCollateral(address,address,uint256)", // first 160 bits will be replaced by reactvm address
+                address(0), // Eventually be replaced with Reactvm address
+                user,
+                amount
+            );;
+            emit Callback(originChainId, origin, GAS_LIMIT, payload);
+        }
     }
 
     // Methods for testing environment only

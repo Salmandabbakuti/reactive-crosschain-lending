@@ -1,0 +1,58 @@
+/* .bridge-card {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #2d2d2d;
+  color: white;
+  border-radius: 16px;
+} */
+
+.bridge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.amount-input {
+  font-size: 24px;
+  color: white;
+  background-color: transparent;
+  width: 100px;
+  text-align: left;
+}
+
+.balance-info {
+  display: flex;
+  align-items: center;
+  color: #aaaaaa;
+}
+
+.max-button {
+  color: #f6b93b;
+  font-weight: bold;
+}
+
+.token-select,
+.chain-select {
+  width: 120px;
+  color: white;
+}
+
+.swap-button-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.swap-button {
+  color: white;
+  background-color: #1a1a1a;
+  border: none;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+}
+
+.estimated-info {
+  text-align: right;
+  font-size: 16px;
+  color: #aaaaaa;
+}

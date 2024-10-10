@@ -27,6 +27,8 @@ contract CrossLoanReactor is IReactive, AbstractReactive {
     // states for the contract
     uint256 private immutable originChainId;
     uint256 private immutable destinationChainId;
+    // Gas limit for the callback. Update the gas limit according to the callback function
+    uint64 private constant GAS_LIMIT = 1000000;
     address private immutable origin;
     address private immutable destination;
 
@@ -77,9 +79,8 @@ contract CrossLoanReactor is IReactive, AbstractReactive {
     /**
      * @notice Reacts to the event that meets the subscription criteria
      * @dev This function is called by the ReactVM only
-     * @dev decodes receiver and amount from the event data and encode them in payload to bridgeMint tokens on the destination chain
-     * @dev gets the destination chain ID and address from reverse mapping and emits Callback event
-     * @dev The emitted Callback event will be caught by the reactive network and forwarded to the destination chain with the payload
+     * @dev Decodes the respective event and encode the payload(function to call and input args) to be sent to the destination chain
+     * @dev Emits Callback with necessary destination data. The emitted Callback event will be caught by the reactive network and forwarded to the destination chain with the payload
      * @param chain_id origin chain ID
      * @param _contract origin contract address
      * @param topic_0 Topic 0 of the event
@@ -109,12 +110,8 @@ contract CrossLoanReactor is IReactive, AbstractReactive {
             data,
             ++counter
         );
-        // Gas limit for the callback. Update the gas limit according to the callback function
-        uint64 GAS_LIMIT = 1000000;
         if (topic_0 == COLLATERAL_DEPOSITED_EVENT_TOPIC_0) {
             // logic to handle collateral deposited event
-            // call issueLoan function on destination chain
-
             // Decoding collatoral deposited event data
             (, , address user, uint256 amount) = abi.decode(
                 data,
@@ -129,7 +126,6 @@ contract CrossLoanReactor is IReactive, AbstractReactive {
             emit Callback(destinationChainId, destination, GAS_LIMIT, payload);
         } else if (topic_0 == LOAN_REPAID_EVENT_TOPIC_0) {
             // logic to handle loan repaid event
-            // call releaseCollateral function on origin chain
             // Decoding loan repaid event data
             (, , address user, uint256 amount) = abi.decode(
                 data,
@@ -140,7 +136,7 @@ contract CrossLoanReactor is IReactive, AbstractReactive {
                 address(0), // Eventually be replaced with Reactvm address
                 user,
                 amount
-            );;
+            );
             emit Callback(originChainId, origin, GAS_LIMIT, payload);
         }
     }

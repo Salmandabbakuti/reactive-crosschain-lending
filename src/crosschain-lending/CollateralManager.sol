@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "../AbstractCallback.sol";
 
-contract Collateral is AbstractCallback {
+contract CollateralManager is AbstractCallback {
     address owner;
     mapping(address => uint256) public collateralAmount;
 
@@ -26,6 +26,13 @@ contract Collateral is AbstractCallback {
         AbstractCallback(_callback_sender) // Set desired callback address for secure bridging
     {
         owner = msg.sender;
+    }
+
+    receive() external payable {}
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "No Permission!");
+        _;
     }
 
     function depositCollateral(uint256 amount) external {

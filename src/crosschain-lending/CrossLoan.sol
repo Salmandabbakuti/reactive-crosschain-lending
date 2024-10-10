@@ -49,6 +49,10 @@ contract CrossLoan is AbstractCallback {
 
     function repayLoan(uint256 amount) external {
         // Logic for repayment
+        require(
+            loanAmount[msg.sender] >= amount,
+            "Repayment amount exceeds loan amount!"
+        );
         loanAmount[msg.sender] -= amount;
         emit LoanRepaid(address(this), block.chainid, msg.sender, amount);
     }
@@ -58,7 +62,7 @@ contract CrossLoan is AbstractCallback {
      * @param _amount Amount to withdraw
      */
     function withdraw(uint256 _amount) external onlyOwner {
-        require(_amount <= address(this).balance, "Not enough balance");
+        require(_amount <= address(this).balance, "Not enough balance!");
         payable(owner).transfer(_amount);
     }
 }

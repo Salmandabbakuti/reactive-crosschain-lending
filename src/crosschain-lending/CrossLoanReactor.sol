@@ -6,7 +6,7 @@ import "../IReactive.sol";
 import "../AbstractReactive.sol";
 import "../ISystemContract.sol";
 
-contract ReactiveBridge is IReactive, AbstractReactive {
+contract CrossLoanReactor is IReactive, AbstractReactive {
     event Event(
         uint256 indexed chain_id,
         address indexed _contract,

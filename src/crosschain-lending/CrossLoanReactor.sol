@@ -124,7 +124,7 @@ contract CrossLoanReactor is IReactive, AbstractReactive {
                 amount
             );
             emit Callback(destinationChainId, destination, GAS_LIMIT, payload);
-        } else if (topic_0 == LOAN_REPAID_EVENT_TOPIC_0) {
+        } else {
             // logic to handle loan repaid event
             // Decoding loan repaid event data
             (, , address user, uint256 amount) = abi.decode(

@@ -8,15 +8,15 @@ contract CollateralManager is AbstractCallback {
     mapping(address => uint256) public collateralAmount;
 
     event CollateralDeposited(
-        address indexed origin,
-        uint256 indexed chainId,
-        address indexed user,
+        address origin,
+        uint256 chainId,
+        address user,
         uint256 amount
     );
     event CollateralReleased(
-        address indexed txOrigin,
-        address indexed caller,
-        address indexed user,
+        address txOrigin,
+        address caller,
+        address user,
         uint256 amount
     );
 

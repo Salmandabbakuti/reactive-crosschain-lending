@@ -9,15 +9,15 @@ contract CrossLoan is AbstractCallback {
     mapping(address => uint256) public loanAmount;
 
     event LoanIssued(
-        address indexed txOrigin,
-        address indexed caller,
-        address indexed user,
+        address txOrigin,
+        address caller,
+        address user,
         uint256 amount
     );
     event LoanRepaid(
-        address indexed origin,
-        uint256 indexed chainId,
-        address indexed user,
+        address origin,
+        uint256 chainId,
+        address user,
         uint256 amount
     );
 

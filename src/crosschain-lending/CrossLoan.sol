@@ -6,7 +6,7 @@ import "../AbstractCallback.sol";
 contract CrossLoan is AbstractCallback {
     address owner;
 
-    mapping(address => uint256) public loanAmount;
+    mapping(address => uint256) public loanAmountByAddr;
 
     event LoanIssued(
         address txOrigin,

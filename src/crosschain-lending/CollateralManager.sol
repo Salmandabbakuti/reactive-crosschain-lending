@@ -5,7 +5,7 @@ import "../AbstractCallback.sol";
 
 contract CollateralManager is AbstractCallback {
     address owner;
-    mapping(address => uint256) public collateralAmount;
+    mapping(address => uint256) public collateralAmountByAddr;
 
     event CollateralDeposited(
         address origin,

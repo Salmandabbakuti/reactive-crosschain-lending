@@ -1,14 +1,16 @@
-# Reactive Bridge
+# Crosschain Lending
 
 ## Overview
 
-This project illustrates a basic use case of the Reactive Network, showcasing a token bridge between two chains. The setup consists of a ERC20 token contract deployed on origin & destination chains, with a Reactive Contract managing the bridge between them. The Reactive Contract listens for events on both chains, emits logs, and triggers callbacks based on predefined conditions. For now, the demo only showcase A->B(Polygon to Sepolia) because, Sepolia is only destination chain supported by Reactive Network as of now. But, the Reactive contract is designed to support two-way token bridging(A->B and B->A).
+This project illustrates a basic use case of the Reactive Network, showcasing a cross-chain lending scenario. The demo involves three contracts, one each for the origin chain(Polygon), destination chain(Sepolia), and a Reactive Contract that listens for events on both chains and triggers callbacks to facilitate cross-chain interactions. The demo allows users to deposit collateral on the origin chain(Polygon) to request a loan on the destination chain(Sepolia). The Reactive Contract listens for the `CollateralDeposited` event on the origin chain(Polygon) and triggers a callback to the destination chain(Sepolia) to issue the loan amount to the user's address on the destination chain(Sepolia). Users can repay the total loan amount at once or in installments. The Reactive Contract listens for the `LoanRepaid` event on the destination chain(Sepolia) and triggers a callback to the origin chain(Polygon) to release the collateral to the user's address on the origin chain(Polygon).
 
 ![Screen1](https://github.com/user-attachments/assets/cc6c018e-d1c1-44a8-8ce6-628b4a0cdaaf)
 
 ### Features
 
-- **Two-way Token Bridge:** This project supports two-way(A->B, B->A) token bridging between two chains. The Reactive Contract designed to listen for events on both chains and trigger callbacks to mint tokens on the destination chain. For now, the demo only showcase A->B(Polygon to Sepolia) because, Sepolia is only destination chain supported by Reactive Network as of now.
+- **Collateral Management:** Users can deposit collateral on the origin chain(Polygon) to request a loan on the destination chain(Sepolia). The Reactive Contract listens for the `CollateralDeposited` event on the origin chain(Polygon) and triggers a callback to the destination chain(Sepolia) to issue the loan amount to the user's address on the destination chain(Sepolia).
+
+- **Loan Repayment:** Users can repay the total loan amount at once or in installments. The Reactive Contract listens for the `LoanRepaid` event on the destination chain(Sepolia) and triggers a callback to the origin chain(Polygon) to release the collateral to the user's address on the origin chain(Polygon).
 
 - **Intuitive UI:** The demo includes a simple UI(Uniswap's Swap like UI) to interact with the contracts. Users can request a bridge transfer from one chain to another by entering the amount of tokens to be bridged.
 
@@ -35,11 +37,13 @@ RC -.->|Callback| DCC
 
 ## Contracts
 
-The demo involves two contracts. Can be found in `src/demos/token-bridge` directory:
+The demo involves three contracts. Can be found in `src/crosschain-lending` directory:
 
-1. **Origin & Destination Chain Contract:** `CrossToken.sol` is a Simple ERC20 token contract that can be deployed on both the origin and destination chains(called as origin1, origin2). It emits an event `BridgeRequest` when a user requests a bridge transfer from one chain to another. The event contains the user's address and the amount to be bridged.
+1. **CollateralManager(Origin) Contract:** `CollateralManager.sol` This contract allows users to deposit collateral on the origin chain(Polygon) to request a loan on the destination chain(Sepolia). It emits a `CollateralDeposited` event when a user deposits collateral. The event contains the user's address and the amount of collateral deposited. The contract also has a `releaseCollateral` function that releases the collateral to the user's address on the origin chain(Polygon) when called by authorized callback proxy contract.
 
-2. **Reactive Contract:** `ReactiveBridge.sol` subscribes to events on both origin & destination, emits logs, and triggers callbacks when conditions are met, such as when `BridgeRequest` is emitted on the either of the chains, The callback is sent to the other chain with payload data to mint tokens on the destination chain. This contract is designed to support two-way token bridging(A->B and B->A). Right now, the demo only supports A->B because, Sepolia is only destination chain supported by Reactive Network.
+2. **CrossLoan Contract(Destination):** `CrossLoan.sol` This Contract issues loan on the destination chain(Sepolia) to the user's address when triggered by the Reactive Contract. It also allows users to repay the total loan amount at once or in installments. The contract emits a `LoanRepaid` event when a user repays the loan amount. The event contains the user's address and the amount of loan repaid in which triggers a callback to the origin chain(Polygon) to release the collateral to the user's address on the origin chain(Polygon).
+
+3. **CrossLoanReactor:** `CrossLoanReactor.sol` is a Reactive Contract that listens for the `CollateralDeposited` event on the origin chain(Polygon) and triggers a callback to the destination chain(Sepolia) to issue the loan amount to the user's address on the destination chain(Sepolia). It also listens for the `LoanRepaid` event on the destination chain(Sepolia) and triggers a callback to the origin chain(Polygon) to release the collateral to the user's address on the origin chain(Polygon).
 
 ## Getting Started
 
@@ -62,14 +66,14 @@ foundryup
 To deploy contracts, follow these steps, making sure you substitute the appropriate keys, addresses, and endpoints where necessary. You will need the following environment variables configured appropriately to follow this script:
 
 ```.env
-ORIGIN1_RPC=
-ORIGIN2_RPC=
+ORIGIN_RPC=
+DESTINATION_RPC=
 REACTIVE_RPC=
 PRIVATE_KEY=
-ORIGIN1_ADDR=
-ORIGIN2_ADDR=
-ORIGIN1_CHAINID=
-ORIGIN2_CHAINID=
+ORIGIN_ADDR=
+DESTINATION_ADDR=
+ORIGIN_CHAINID=
+DESTINATION_CHAINID=
 SYSTEM_CONTRACT_ADDR=
 CALLBACK_SENDER_ADDR=
 ```
@@ -86,19 +90,19 @@ source .env
 
 This project is scaffolded using Foundry, a smart contract development toolchain. Please refer to the [Foundry documentation](https://book.getfoundry.sh/) for more details.
 
-Directory structure:
+Directory Structure:
 
-```bash
+````bash
+.
 ├── README.md
-├── .env
-├── lib # Foundry, OpenZeppelin, and other dependencies
-├── src
-│   ├── demos
-│   │   └── token-bridge # Token Bridge Demo Contracts
-│   │       ├── CrossToken.sol
-│   │       └── ReactiveBridge.sol
 ├── frontend
-```
+├── lib # Foundry library
+├── src
+│    ├── crosschain-lending # Crosschain lending contracts
+│         ├── CollateralManager.sol
+│         ├── CrossLoan.sol
+│         ├── CrossLoanReactor.sol
+
 
 Install dependencies and compile the contracts:
 
@@ -106,51 +110,55 @@ Install dependencies and compile the contracts:
 forge install
 
 forge compile
-```
+````
 
-Deploy the `CrossToken` contract with authorized callback sender on both chains(eg. Polygon & Sepolia) and assign the `Deployed to` address from the response to `ORIGIN1_ADDR` and `ORIGIN2_ADDR` respectively.
+Deploy the `CollateralManager` contract with authorized callback sender on origin(i.e Polygon) and assign the `Deployed to` address from the response to `ORIGIN_ADDR`.
 
 ```bash
-forge create --rpc-url $ORIGIN1_RPC --private-key $PRIVATE_KEY src/demos/token-bridge/CrossToken.sol:CrossToken --constructor-args 1000000000000000000000 $CALLBACK_SENDER_ADDR
+forge create --rpc-url $ORIGIN_RPC --private-key $PRIVATE_KEY src/crosschain-lending/CollateralManager.sol:CollateralManager --constructor-args $CALLBACK_SENDER_ADDR
+```
 
-forge create --rpc-url $ORIGIN2_RPC --private-key $PRIVATE_KEY src/demos/token-bridge/CrossToken.sol:CrossToken --constructor-args 1000000000000000000000 $CALLBACK_SENDER_ADDR
+Deploy the `CrossLoan` contract with authorized callback sender on destination(i.e. Sepolia) and assign the `Deployed to` address from the response to `DESTINATION_ADDR`.
+
+```bash
+forge create --rpc-url $DESTINATION_RPC --private-key $PRIVATE_KEY src/crosschain-lending/CrossLoan.sol:CrossLoan --constructor-args $CALLBACK_SENDER_ADDR
 ```
 
 ### Callback Payment
 
-To ensure a successful callback, the callback contract(both origin1, origin2 contracts) must have an ETH balance. You can find more details [here](https://dev.reactive.network/system-contract#callback-payments). To fund the callback contracts, run the following command:
+To ensure a successful callback and issue loans, the callback contract(both origin, destination contracts) must have an ETH balance. You can find more details [here](https://dev.reactive.network/system-contract#callback-payments). To fund the callback contracts, run the following command:
 
 ```bash
-cast send $ORIGIN1_ADDR --rpc-url $ORIGIN1_RPC --private-key $PRIVATE_KEY --value 0.1ether
+cast send $ORIGIN_ADDR --rpc-url $ORIGIN_RPC --private-key $PRIVATE_KEY --value 0.1ether
 
-cast send $ORIGIN2_ADDR --rpc-url $ORIGIN2_RPC --private-key $PRIVATE_KEY --value 0.1ether
+cast send $DESTINATION_ADDR --rpc-url $DESTINATION_RPC --private-key $PRIVATE_KEY --value 0.4ether # More funds required for issuing loans
 ```
 
 ### Deploy Reactive Contract
 
-Deploy the `ReactiveBridge.sol` (reactive contract), configuring it to listen to `BridgeRequest` event on both chains(origin1, origin2) and trigger a callback to the other chain with the payload data.
+Deploy the `CrossLoanReactor.sol` (reactive contract), configuring it to listen to `CollateralDeposited` event on origin contract and `LoanRepaid` event on destination contract, Triggering respective callbacks(to either origin or destination contracts).
 
 ```bash
-forge create --rpc-url $REACTIVE_RPC --private-key $PRIVATE_KEY src/demos/token-bridge/ReactiveBridge.sol:ReactiveBridge --constructor-args $SYSTEM_CONTRACT_ADDR $ORIGIN1_ADDR $ORIGIN2_ADDR $ORIGIN1_CHAINID $ORIGIN2_CHAINID
+forge create --rpc-url $REACTIVE_RPC --private-key $PRIVATE_KEY src/crosschain-lending/CrossLoanReactor.sol:CrossLoanReactor --constructor-args $SYSTEM_CONTRACT_ADDR $ORIGIN_ADDR $DESTINATION_ADDR $ORIGIN_CHAINID $DESTINATION_CHAINID
 ```
 
-### Test the Bridge
+### Test the Setup
 
-Test the whole setup by sending a bridge request from origin1 to origin2(Should be Sepolia).
+To test the setup, deposit some collateral on the origin chain(Polygon).
 
 ```bash
-cast send --rpc-url $ORIGIN1_RPC --private-key $PRIVATE_KEY $ORIGIN1_ADDR "bridgeRequest(uint256)" 5000000000000000000
+cast send --rpc-url $ORIGIN_RPC --private-key $PRIVATE_KEY $ORIGIN_ADDR "depositCollateral(uint256)" 50000000000000000
 ```
 
-> **Note:** The bridge request callback should be on the destination chain(Sepolia) because the Reactive Network only supports Sepolia as the destination chain for now. So, Make sure you are calling `birdgeRequest` function from the other chain. (Not Sepolia). Adjust `ORIGIN1_ADDR` and `ORIGIN2_ADDR` accordingly in the above command.
+> **Note:** Destination contract should be deployed on Sepolia chain and should have enough funds to issue loans.
 
-This should trigger the callback on the destination chain(Sepolia) and mint the `amount` of tokens to the `caller` address on the destination chain.
+This should trigger a callback to the destination chain(Sepolia) to issue loan amount to the caller address on the destination chain.
 
 ### Deployed Contracts
 
-- **CrossToken(XT) Contract(Polygon):** [0xd231fe46b4a8500d4add5ad98ec3c4ca56e7dee4](https://polygonscan.com/token/0xd231fe46b4a8500d4add5ad98ec3c4ca56e7dee4)
-- **CrossToken(XT) Contract(Sepolia):** [0x3eed33dcf10ea9543380e71b9e245dca16c30605](https://sepolia.etherscan.io/token/0x3eed33dcf10ea9543380e71b9e245dca16c30605)
-- **ReactiveBridge Contract:** [0x6d21161d1D17cDCA58707829E4d57D5a4EfE5489](https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9?screen=info)
+- **CollateralManager(Origin):** [0x0dd2c234bcd5c3a8da28176cb69949289c926e39](https://sepolia.etherscan.io/address/0x0dd2c234bcd5c3a8da28176cb69949289c926e39)
+- **CrossLoan(Destination):** [0x50be96d76f30ab81d2c17529859c483cc90b5673](https://sepolia.etherscan.io/address/0x50be96d76f30ab81d2c17529859c483cc90b5673)
+- **CrossLoanReactor Contract:** [0xbbf700909f861a0fa1ea7c53f330e05a67e1505](https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9?screen=info)
 - **RVM:** [0xc7203561EF179333005a9b81215092413aB86aE9](https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9)
 
 ### Running the Demo
@@ -173,8 +181,7 @@ Open your browser and navigate to `http://localhost:3000` to view the demo.
 
 https://github.com/user-attachments/assets/803c6520-aedd-4be1-9d18-4057da0a2e1f
 
-
-### Bridging Workflow
+### Crosschain Lending Workflow
 
 1. **Connect Wallet:** Connect your wallet to the frontend. Make sure you have some funds on Polygon.
 

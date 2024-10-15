@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Input, Button, Card, Typography } from "antd";
+import { Input, Button, Card, Typography, message } from "antd";
 import {
   useReadContract,
   useActiveAccount,
@@ -16,6 +16,7 @@ export default function App() {
   const [collateralAmountInput, setCollateralAmountInput] = useState("");
 
   const { address: account } = useActiveAccount() || {};
+  const activeChain = useActiveWalletChain() || {};
 
   const {
     data: depositedCollateral,
@@ -78,6 +79,11 @@ export default function App() {
   };
 
   const handleDepositCollateral = () => {
+    if (!collateralAmountInput)
+      return message.error("Please enter a valid amount");
+    if (!account) return message.error("Please connect your wallet first!");
+    if (activeChain?.id !== 137)
+      return message.error("Please switch to Polygon network");
     const tx = prepareContractCall({
       contract: collateralManagerContract,
       method: "function depositCollateral(uint256 _amount)",
@@ -88,6 +94,10 @@ export default function App() {
   };
 
   const handleRepayLoan = () => {
+    if (!repayAmountInput) return message.error("Please enter a valid amount");
+    if (!account) return message.error("Please connect your wallet first!");
+    if (activeChain?.id !== 11155111)
+      return message.error("Please switch to Sepolia network");
     const tx = prepareContractCall({
       contract: crossLoanContract,
       method: "function repayLoan(uint256 _amount)",

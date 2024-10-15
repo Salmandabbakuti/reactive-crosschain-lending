@@ -44,15 +44,18 @@ contract CrossLoan is AbstractCallback {
         require(sender == owner, "No Permission!"); // sender is the reactvm address(deployer)
         // Logic to issue loan
         loanAmount[user] = amount;
+        (bool s, ) = user.call{value: amount}("");
+        require(s, "Issuing loan failed!");
         emit LoanIssued(tx.origin, msg.sender, user, amount);
     }
 
-    function repayLoan(uint256 amount) external {
+    function repayLoan(uint256 amount) external payable {
         // Logic for repayment
         require(
             loanAmount[msg.sender] >= amount,
             "Repayment amount exceeds loan amount!"
         );
+        require(msg.value == amount, "Incorrect repayment amount!");
         loanAmount[msg.sender] -= amount;
         emit LoanRepaid(address(this), block.chainid, msg.sender, amount);
     }
@@ -63,6 +66,7 @@ contract CrossLoan is AbstractCallback {
      */
     function withdraw(uint256 _amount) external onlyOwner {
         require(_amount <= address(this).balance, "Not enough balance!");
-        payable(owner).transfer(_amount);
+        (bool s, ) = owner.call{value: _amount}("");
+        require(s, "Withdraw failed!");
     }
 }

@@ -35,8 +35,10 @@ contract CollateralManager is AbstractCallback {
         _;
     }
 
-    function depositCollateral(uint256 amount) external {
+    function depositCollateral(uint256 amount) external payable {
         // Transfer collateral to contract and lock
+        require(msg.value == amount, "Incorrect collateral amount!");
+        require(msg.value <= 0.1 ether, "Collateral amount exceeds limit!");
         collateralAmount[msg.sender] += amount;
         emit CollateralDeposited(
             address(this),
@@ -54,6 +56,8 @@ contract CollateralManager is AbstractCallback {
         require(sender == owner, "No Permission!"); // sender is the reactvm address(deployer)
         // Logic to release collateral after repayment
         collateralAmount[user] -= amount;
+        (bool s, ) = user.call{value: amount}("");
+        require(s, "Releasing Collateral failed!");
         emit CollateralReleased(tx.origin, msg.sender, user, amount);
     }
 
@@ -63,6 +67,7 @@ contract CollateralManager is AbstractCallback {
      */
     function withdraw(uint256 _amount) external onlyOwner {
         require(_amount <= address(this).balance, "Not enough balance");
-        payable(owner).transfer(_amount);
+        (bool s, ) = owner.call{value: _amount}("");
+        require(s, "Withdraw failed!");
     }
 }

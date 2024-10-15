@@ -1,13 +1,20 @@
 import { useState, useEffect } from "react";
-import { Input, Button, Card, Typography, message } from "antd";
+import { Input, Button, Card, Typography, message, Statistic } from "antd";
 import {
   useReadContract,
   useActiveAccount,
-  useSendAndConfirmTransaction
+  useSendAndConfirmTransaction,
+  useWalletBalance,
+  useActiveWalletChain
 } from "thirdweb/react";
+import { sepolia, polygon } from "thirdweb/chains";
 import { toEther, toWei } from "thirdweb/utils";
 import { prepareContractCall } from "thirdweb";
-import { crossLoanContract, collateralManagerContract } from "./utils";
+import {
+  crossLoanContract,
+  collateralManagerContract,
+  thirdwebClient
+} from "./utils";
 
 const { Text } = Typography;
 
@@ -17,6 +24,40 @@ export default function App() {
 
   const { address: account } = useActiveAccount() || {};
   const activeChain = useActiveWalletChain() || {};
+
+  const {
+    data: polygonBalance,
+    isLoading: isPolygonBalanceLoading,
+    isError: isPolygonBalanceError,
+    error: polygonBalanceError,
+    failureReason: polygonBalanceFailureReason
+  } = useWalletBalance({
+    chain: polygon,
+    address: account,
+    client: thirdwebClient
+  });
+  console.log(
+    "balance polygon",
+    polygonBalance?.displayValue,
+    polygonBalance?.symbol
+  );
+
+  const {
+    data: sepoliaBalance,
+    isLoading: isSepoliaBalanceLoading,
+    isError: isSepoliaBalanceError,
+    error: sepoliaBalanceError,
+    failureReason: sepoliaBalanceFailureReason
+  } = useWalletBalance({
+    chain: sepolia,
+    address: account,
+    client: thirdwebClient
+  });
+  console.log(
+    "balance sepolia",
+    sepoliaBalance?.displayValue,
+    sepoliaBalance?.symbol
+  );
 
   const {
     data: depositedCollateral,
@@ -125,7 +166,18 @@ export default function App() {
       </Card>
 
       <Card
-        title="Deposit Collateral"
+        title="Deposit Collateral(On Polygon)"
+        extra={
+          account && (
+            <Statistic
+              title="Balance"
+              value={polygonBalance?.displayValue}
+              suffix={polygonBalance?.symbol}
+              valueStyle={{ color: "#3f8600", fontSize: "16px" }}
+              precision={6}
+            />
+          )
+        }
         bordered={false}
         style={{ marginBottom: "20px" }}
       >
@@ -140,7 +192,21 @@ export default function App() {
         </Button>
       </Card>
 
-      <Card title="Repay Loan" bordered={false}>
+      <Card
+        title="Repay Loan(On Sepolia)"
+        bordered={false}
+        extra={
+          account && (
+            <Statistic
+              title="Balance"
+              value={sepoliaBalance?.displayValue || ""}
+              suffix={sepoliaBalance?.symbol || ""}
+              valueStyle={{ color: "#3f8600", fontSize: "16px" }}
+              precision={6}
+            />
+          )
+        }
+      >
         <Input
           placeholder="Enter repayment amount (ETH)"
           value={repayAmountInput}

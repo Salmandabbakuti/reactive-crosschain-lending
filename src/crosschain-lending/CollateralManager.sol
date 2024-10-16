@@ -39,7 +39,7 @@ contract CollateralManager is AbstractCallback {
         // Transfer collateral to contract and lock
         require(msg.value == amount, "Incorrect collateral amount!");
         require(msg.value <= 0.1 ether, "Collateral amount exceeds limit!");
-        collateralAmount[msg.sender] += amount;
+        collateralAmountByAddr[msg.sender] += amount;
         emit CollateralDeposited(
             address(this),
             block.chainid,
@@ -55,7 +55,7 @@ contract CollateralManager is AbstractCallback {
     ) external authorizedSenderOnly {
         require(sender == owner, "No Permission!"); // sender is the reactvm address(deployer)
         // Logic to release collateral after repayment
-        collateralAmount[user] -= amount;
+        collateralAmountByAddr[user] -= amount;
         (bool s, ) = user.call{value: amount}("");
         require(s, "Releasing Collateral failed!");
         emit CollateralReleased(tx.origin, msg.sender, user, amount);

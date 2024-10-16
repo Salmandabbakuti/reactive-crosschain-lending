@@ -56,13 +56,13 @@ export default function App() {
   const { data: depositedCollateral, error: depositedCollateralError } =
     useReadContract({
       contract: collateralManagerContract,
-      method: "function collateralAmount(address) view returns (uint256)",
+      method: "function collateralAmountByAddr(address) view returns (uint256)",
       params: [account]
     });
 
   const { data: loanAmount, error: loanAmountError } = useReadContract({
     contract: crossLoanContract,
-    method: "function loanAmount(address) view returns (uint256)",
+    method: "function loanAmountByAddr(address) view returns (uint256)",
     params: [account]
   });
 
@@ -97,7 +97,7 @@ export default function App() {
     if (!collateralAmountInput)
       return message.error("Please enter a valid amount");
     if (!account) return message.error("Please connect your wallet first!");
-    if (activeChain?.id !== polygon.id)
+    if (activeChain?.id !== sepolia.id)
       return message.error("Please switch to Polygon network");
     const tx = prepareContractCall({
       contract: collateralManagerContract,

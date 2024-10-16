@@ -1,5 +1,5 @@
 import { createThirdwebClient, getContract } from "thirdweb";
-import { polygon, sepolia } from "thirdweb/chains";
+import { avalanche, sepolia } from "thirdweb/chains";
 import { CROSSLOAN_CONTRACT_ADDRESS, COLLATERAL_MANAGER_CONTRACT_ADDRESS } from "./constants";
 
 const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID;
@@ -13,7 +13,7 @@ export const crossLoanContract = getContract({
 });
 
 export const collateralManagerContract = getContract({
-  chain: sepolia,
+  chain: avalanche,
   client: thirdwebClient,
   address: COLLATERAL_MANAGER_CONTRACT_ADDRESS
 });

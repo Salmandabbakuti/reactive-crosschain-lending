@@ -19,7 +19,7 @@ import {
   useWalletBalance,
   useActiveWalletChain
 } from "thirdweb/react";
-import { sepolia, polygon } from "thirdweb/chains";
+import { sepolia, avalanche } from "thirdweb/chains";
 import { toEther, toWei } from "thirdweb/utils";
 import { prepareContractCall } from "thirdweb";
 import {
@@ -37,13 +37,12 @@ export default function App() {
   const { address: account } = useActiveAccount() || {};
   const activeChain = useActiveWalletChain() || {};
 
-  const { data: polygonBalance, error: polygonBalanceError } = useWalletBalance(
-    {
-      chain: polygon,
+  const { data: avalancheBalance, error: avalancheBalanceError } =
+    useWalletBalance({
+      chain: avalanche,
       address: account,
       client: thirdwebClient
-    }
-  );
+    });
 
   const { data: sepoliaBalance, error: sepoliaBalanceError } = useWalletBalance(
     {
@@ -66,11 +65,11 @@ export default function App() {
     params: [account]
   });
 
-  console.log("polygonBalance", polygonBalance);
+  console.log("avalancheBalance", avalancheBalance);
   console.log("sepoliaBalance", sepoliaBalance);
   console.log("depositedCollateral", depositedCollateral);
   console.log("loanAmount", loanAmount);
-  console.error("polygonBalanceError", polygonBalanceError);
+  console.error("avalancheBalanceError", avalancheBalanceError);
   console.error("sepoliaBalanceError", sepoliaBalanceError);
   console.error("depositedCollateralError", depositedCollateralError);
   console.error("loanAmountError", loanAmountError);
@@ -97,8 +96,8 @@ export default function App() {
     if (!collateralAmountInput)
       return message.error("Please enter a valid amount");
     if (!account) return message.error("Please connect your wallet first!");
-    if (activeChain?.id !== sepolia.id)
-      return message.error("Please switch to Polygon network");
+    if (activeChain?.id !== avalanche.id)
+      return message.error("Please switch to Avalanche network");
     const tx = prepareContractCall({
       contract: collateralManagerContract,
       method: "function depositCollateral(uint256 _amount)",
@@ -127,13 +126,13 @@ export default function App() {
       <Row gutter={[16, 16]}>
         <Col span={12}>
           <Card
-            title="Collateral Details (Polygon)"
+            title="Collateral Details (Avalanche)"
             bordered={false}
             hoverable
             cover={
               <img
-                src="./poly-logo.svg"
-                alt="eth-logo"
+                src="./avax-logo.svg"
+                alt="avax-logo"
                 width={40}
                 height={40}
                 style={{ marginTop: "10px" }}
@@ -141,11 +140,11 @@ export default function App() {
             }
             extra={
               account && (
-                <Tooltip title="Balance on Polygon">
+                <Tooltip title="Balance on Avalanche">
                   <Statistic
                     title="Balance"
-                    value={polygonBalance?.displayValue}
-                    suffix={polygonBalance?.symbol}
+                    value={avalancheBalance?.displayValue}
+                    suffix={avalancheBalance?.symbol}
                     precision={6}
                     valueStyle={{ color: "#3f8600", fontSize: "16px" }}
                   />
@@ -155,7 +154,7 @@ export default function App() {
           >
             <div>
               <Text>Deposited Collateral: </Text>
-              <Text strong> {toEther(depositedCollateral || 0n)} ETH</Text>
+              <Text strong> {toEther(depositedCollateral || 0n)} AVAX</Text>
             </div>
             <Divider />
             <Input
@@ -164,8 +163,9 @@ export default function App() {
               value={collateralAmountInput}
               onChange={(e) => setCollateralAmountInput(e.target.value)}
               style={{ marginBottom: "10px" }}
-              addonAfter={"ETH"}
+              addonAfter={"AVAX"}
             />
+            {/* note text */}
             <Button
               type="primary"
               block
@@ -174,6 +174,10 @@ export default function App() {
             >
               Deposit Collateral
             </Button>
+            <Text type="primary">
+              Note: *For demo purposes, the collateral amount is limited to 0.1
+              AVAX to mitigate loss of real funds in case of any error
+            </Text>
           </Card>
         </Col>
 
@@ -227,6 +231,11 @@ export default function App() {
             >
               Repay Loan
             </Button>
+            <Text type="primary">
+              Note: *You will receive same amount of loan as collateral
+              deposited on Avalanche. As you repay the loan, the collateral will
+              be released back to you
+            </Text>
           </Card>
         </Col>
       </Row>
@@ -248,7 +257,7 @@ export default function App() {
                 destination chain (Sepolia) to issue loan
               </Text>
               <a
-                href={`https://polygonscan.com/tx/${depositCollateralTxReceipt.transactionHash}`}
+                href={`https://snowtrace.io/tx/${depositCollateralTxReceipt.transactionHash}`}
                 target="_blank"
               >
                 View Source Transaction
@@ -287,7 +296,7 @@ export default function App() {
               <Text strong>Loan repaid successfully!</Text>
               <Text type="primary">
                 Note: It may take a few minutes for the collateral to be
-                released on the source chain (Polygon)
+                released on the source chain (Avalanche)
               </Text>
               <a
                 href={`https://sepolia.etherscan.io/tx/${repayLoanTxReceipt.transactionHash}`}
@@ -306,7 +315,7 @@ export default function App() {
                 View Reactive Transaction
               </a>
               <a
-                href={`https://polygonscan.com/address/${account}#internaltx`}
+                href={`https://snowtrace.io/address/${account}#internaltx`}
                 target="_blank"
                 rel="noreferrer"
               >

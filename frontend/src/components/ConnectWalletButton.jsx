@@ -1,5 +1,5 @@
 import { ConnectButton } from "thirdweb/react";
-import { sepolia, polygon } from "thirdweb/chains";
+import { sepolia, avalanche } from "thirdweb/chains";
 import { createWallet } from "thirdweb/wallets";
 import { thirdwebClient } from "../utils";
 
@@ -16,8 +16,8 @@ export default function ConnectWalletButton() {
   return (
     <ConnectButton
       client={thirdwebClient}
-      // chain={polygon} // default chain to connect
-      chains={[polygon, sepolia]} // chains to connect
+      chain={avalanche} // default chain to connect
+      chains={[avalanche, sepolia]} // chains to connect
       wallets={thirdwebWallets}
       recommendedWallets={[
         thirdwebWallets[0],
@@ -38,30 +38,6 @@ export default function ConnectWalletButton() {
           backgroundColor: "#1890ff"
         }
       }}
-      // detailsButton={{
-      //   displayBalanceToken: {
-      //     [sepolia.id]: SEPOLIA_XT_CONTRACT_ADDRESS, // token address to display balance for
-      //     [polygon.id]: POLYGON_XT_CONTRACT_ADDRESS // token address to display balance for
-      //   }
-      // }}
-      // supportedTokens={{
-      //   [polygon.id]: [
-      //     {
-      //       address: POLYGON_XT_CONTRACT_ADDRESS,
-      //       name: "CrossToken",
-      //       symbol: "XT",
-      //       icon: "https://example.com/icon.png"
-      //     }
-      //   ],
-      //   [sepolia.id]: [
-      //     {
-      //       address: SEPOLIA_XT_CONTRACT_ADDRESS,
-      //       name: "CrossToken",
-      //       symbol: "XT",
-      //       icon: "https://example.com/icon.png"
-      //     }
-      //   ]
-      // }}
       appMetadata={{
         name: "Cross Lending Dapp",
         description: "Cross Lending Dapp",

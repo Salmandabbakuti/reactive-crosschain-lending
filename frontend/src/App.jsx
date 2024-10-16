@@ -6,7 +6,11 @@ import {
   Typography,
   message,
   Statistic,
-  Space
+  Space,
+  Row,
+  Col,
+  Divider,
+  Tooltip
 } from "antd";
 import {
   useReadContract,
@@ -33,105 +37,67 @@ export default function App() {
   const { address: account } = useActiveAccount() || {};
   const activeChain = useActiveWalletChain() || {};
 
-  const {
-    data: polygonBalance,
-    isLoading: isPolygonBalanceLoading,
-    isError: isPolygonBalanceError,
-    error: polygonBalanceError,
-    failureReason: polygonBalanceFailureReason
-  } = useWalletBalance({
-    chain: polygon,
-    address: account,
-    client: thirdwebClient
-  });
-  console.log(
-    "balance polygon",
-    polygonBalance?.displayValue,
-    polygonBalance?.symbol
+  const { data: polygonBalance, error: polygonBalanceError } = useWalletBalance(
+    {
+      chain: polygon,
+      address: account,
+      client: thirdwebClient
+    }
   );
 
-  const {
-    data: sepoliaBalance,
-    isLoading: isSepoliaBalanceLoading,
-    isError: isSepoliaBalanceError,
-    error: sepoliaBalanceError,
-    failureReason: sepoliaBalanceFailureReason
-  } = useWalletBalance({
-    chain: sepolia,
-    address: account,
-    client: thirdwebClient
-  });
-  console.log(
-    "balance sepolia",
-    sepoliaBalance?.displayValue,
-    sepoliaBalance?.symbol
+  const { data: sepoliaBalance, error: sepoliaBalanceError } = useWalletBalance(
+    {
+      chain: sepolia,
+      address: account,
+      client: thirdwebClient
+    }
   );
 
-  const {
-    data: depositedCollateral,
-    isLoading: isCollateralAmountByAddrLoading,
-    isError: isCollateralAmountByAddrError,
-    failureReason: collateralAmountByAddrFailureReason
-  } = useReadContract({
-    contract: collateralManagerContract,
-    method: "function collateralAmount(address) view returns (uint256)",
-    params: [account]
-  });
+  const { data: depositedCollateral, error: depositedCollateralError } =
+    useReadContract({
+      contract: collateralManagerContract,
+      method: "function collateralAmount(address) view returns (uint256)",
+      params: [account]
+    });
 
-  const {
-    data: loanAmount,
-    isLoading: isLoanAmountLoading,
-    isError: isLoanAmountError,
-    failureReason: loanAmountFailureReason
-  } = useReadContract({
+  const { data: loanAmount, error: loanAmountError } = useReadContract({
     contract: crossLoanContract,
     method: "function loanAmount(address) view returns (uint256)",
     params: [account]
   });
-  console.log("loanAmount", loanAmount);
+
+  console.log("polygonBalance", polygonBalance);
+  console.log("sepoliaBalance", sepoliaBalance);
   console.log("depositedCollateral", depositedCollateral);
+  console.log("loanAmount", loanAmount);
+  console.error("polygonBalanceError", polygonBalanceError);
+  console.error("sepoliaBalanceError", sepoliaBalanceError);
+  console.error("depositedCollateralError", depositedCollateralError);
+  console.error("loanAmountError", loanAmountError);
 
   const {
     mutate: sendAndConfirmDepositCollateralTx,
+    isError: isDepositCollateralTxError,
     data: depositCollateralTxReceipt,
     error: depositCollateralTxError,
-    failureReason: depositCollateralTxFailureReason,
     isPending: isDepositCollateralTxPending,
-    isError: isDepositCollateralTxError,
     isSuccess: isDepositCollateralTxSuccess
   } = useSendAndConfirmTransaction();
 
-  console.log(depositCollateralTxError, depositCollateralTxFailureReason);
-
   const {
     mutate: sendAndConfirmRepayLoanTx,
+    isError: isRepayLoanTxError,
     data: repayLoanTxReceipt,
     error: repayLoanTxError,
-    failureReason: repayLoanTxFailureReason,
     isPending: isRepayLoanTxPending,
-    isError: isRepayLoanTxError,
     isSuccess: isRepayLoanTxSuccess
   } = useSendAndConfirmTransaction();
-
-  console.log(repayLoanTxError, repayLoanTxFailureReason);
-
-  useEffect(() => {
-    // Fetch loan details from the blockchain (collateral, loanAmount) on component mount
-    // fetchLoanDetails();
-  }, []);
-
-  // Simulate fetching loan details from the blockchain
-  const fetchLoanDetails = async () => {
-    // Fetch collateral and loan amount here
-    setCollateral(2); // Example collateral value
-    setLoanAmount(1); // Example loan value
-  };
 
   const handleDepositCollateral = () => {
     if (!collateralAmountInput)
       return message.error("Please enter a valid amount");
     if (!account) return message.error("Please connect your wallet first!");
-    if (activeChain?.id !== 11155111)
+    if (activeChain?.id !== polygon.id)
       return message.error("Please switch to Polygon network");
     const tx = prepareContractCall({
       contract: collateralManagerContract,
@@ -145,7 +111,7 @@ export default function App() {
   const handleRepayLoan = () => {
     if (!repayAmountInput) return message.error("Please enter a valid amount");
     if (!account) return message.error("Please connect your wallet first!");
-    if (activeChain?.id !== 11155111)
+    if (activeChain?.id !== sepolia.id)
       return message.error("Please switch to Sepolia network");
     const tx = prepareContractCall({
       contract: crossLoanContract,
@@ -158,74 +124,114 @@ export default function App() {
 
   return (
     <>
-      <Card
-        title="Loan and Collateral Details"
-        bordered={false}
-        style={{ marginBottom: "20px" }}
-      >
-        <div>
-          <Text>Deposited Collateral: </Text>
-          <Text strong> {toEther(depositedCollateral || 0n)} ETH</Text>
-        </div>
-        <div>
-          <Text>Loan Amount: </Text>
-          <Text strong>{toEther(loanAmount || 0n)} ETH</Text>
-        </div>
-      </Card>
-
-      <Card
-        title="Deposit Collateral(On Polygon)"
-        extra={
-          account && (
-            <Statistic
-              title="Balance"
-              value={polygonBalance?.displayValue}
-              suffix={polygonBalance?.symbol}
-              valueStyle={{ color: "#3f8600", fontSize: "16px" }}
-              precision={6}
+      <Row gutter={[16, 16]}>
+        <Col span={12}>
+          <Card
+            title="Collateral Details (Polygon)"
+            bordered={false}
+            hoverable
+            cover={
+              <img
+                src="./poly-logo.svg"
+                alt="eth-logo"
+                width={40}
+                height={40}
+                style={{ marginTop: "10px" }}
+              />
+            }
+            extra={
+              account && (
+                <Tooltip title="Balance on Polygon">
+                  <Statistic
+                    title="Balance"
+                    value={polygonBalance?.displayValue}
+                    suffix={polygonBalance?.symbol}
+                    precision={6}
+                    valueStyle={{ color: "#3f8600", fontSize: "16px" }}
+                  />
+                </Tooltip>
+              )
+            }
+          >
+            <div>
+              <Text>Deposited Collateral: </Text>
+              <Text strong> {toEther(depositedCollateral || 0n)} ETH</Text>
+            </div>
+            <Divider />
+            <Input
+              type="number"
+              placeholder="Enter collateral amount (ETH)"
+              value={collateralAmountInput}
+              onChange={(e) => setCollateralAmountInput(e.target.value)}
+              style={{ marginBottom: "10px" }}
+              addonAfter={"ETH"}
             />
-          )
-        }
-        bordered={false}
-        style={{ marginBottom: "20px" }}
-      >
-        <Input
-          placeholder="Enter collateral amount (ETH)"
-          value={collateralAmountInput}
-          onChange={(e) => setCollateralAmountInput(e.target.value)}
-          style={{ marginBottom: "10px" }}
-        />
-        <Button type="primary" onClick={handleDepositCollateral}>
-          Deposit Collateral
-        </Button>
-      </Card>
+            <Button
+              type="primary"
+              block
+              loading={isDepositCollateralTxPending}
+              onClick={handleDepositCollateral}
+            >
+              Deposit Collateral
+            </Button>
+          </Card>
+        </Col>
 
-      <Card
-        title="Repay Loan(On Sepolia)"
-        bordered={false}
-        extra={
-          account && (
-            <Statistic
-              title="Balance"
-              value={sepoliaBalance?.displayValue || ""}
-              suffix={sepoliaBalance?.symbol || ""}
-              valueStyle={{ color: "#3f8600", fontSize: "16px" }}
-              precision={6}
+        <Col span={12}>
+          <Card
+            title="Loan Details (Sepolia)"
+            bordered={false}
+            hoverable
+            cover={
+              <img
+                src="./eth-logo.svg"
+                alt="eth-logo"
+                width={45}
+                height={45}
+                style={{ marginTop: "10px" }}
+              />
+            }
+            extra={
+              account && (
+                <Tooltip title="Balance on Sepolia">
+                  <Statistic
+                    title="Balance"
+                    value={sepoliaBalance?.displayValue || ""}
+                    suffix={sepoliaBalance?.symbol || ""}
+                    precision={6}
+                    valueStyle={{ color: "#3f8600", fontSize: "16px" }}
+                  />
+                </Tooltip>
+              )
+            }
+          >
+            <div>
+              <Text>Loan Amount: </Text>
+              <Text strong>{toEther(loanAmount || 0n)} ETH</Text>
+            </div>
+            <Divider />
+            <Input
+              // variant="borderless"
+              type="number"
+              placeholder="Enter repayment amount (ETH)"
+              value={repayAmountInput}
+              onChange={(e) => setRepayAmountInput(e.target.value)}
+              style={{ marginBottom: "10px" }}
+              addonAfter={"ETH"}
             />
-          )
-        }
-      >
-        <Input
-          placeholder="Enter repayment amount (ETH)"
-          value={repayAmountInput}
-          onChange={(e) => setRepayAmountInput(e.target.value)}
-          style={{ marginBottom: "10px" }}
-        />
-        <Button type="primary" onClick={handleRepayLoan}>
-          Repay Loan
-        </Button>
-      </Card>
-      {/* logs div */}
+            <Button
+              type="primary"
+              block
+              loading={isRepayLoanTxPending}
+              onClick={handleRepayLoan}
+            >
+              Repay Loan
+            </Button>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Transaction Logs */}
       <div style={{ textAlign: "center", marginTop: "20px" }}>
         <Space direction="vertical" size="middle">
           {
@@ -274,7 +280,7 @@ export default function App() {
           )}
           {
             // Repay Loan Tx Logs
-            isRepayLoanTxPending && <Text>Repaying Loan in progress...</Text>
+            isRepayLoanTxPending && <Text>Repaying loan in progress...</Text>
           }
           {isRepayLoanTxSuccess && (
             <Space direction="vertical">

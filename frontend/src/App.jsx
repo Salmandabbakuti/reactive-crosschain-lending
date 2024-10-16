@@ -12,6 +12,7 @@ import {
   Divider,
   Tooltip
 } from "antd";
+import { ExportOutlined } from "@ant-design/icons";
 import {
   useReadContract,
   useActiveAccount,
@@ -27,6 +28,10 @@ import {
   collateralManagerContract,
   thirdwebClient
 } from "./utils";
+import {
+  COLLATERAL_MANAGER_CONTRACT_ADDRESS,
+  CROSSLOAN_CONTRACT_ADDRESS
+} from "./utils/constants";
 
 const { Text } = Typography;
 
@@ -126,7 +131,17 @@ export default function App() {
       <Row gutter={[16, 16]}>
         <Col span={12}>
           <Card
-            title="Collateral Details (Avalanche)"
+            title={
+              <Space>
+                <Text>Collateral Details (Avalanche)</Text>
+                <a
+                  href={`https://snowtrace.io/address/${COLLATERAL_MANAGER_CONTRACT_ADDRESS}`}
+                  target="_blank"
+                >
+                  <ExportOutlined />
+                </a>
+              </Space>
+            }
             bordered={false}
             hoverable
             cover={
@@ -183,7 +198,17 @@ export default function App() {
 
         <Col span={12}>
           <Card
-            title="Loan Details (Sepolia)"
+            title={
+              <Space>
+                <Text>Loan Details (Sepolia)</Text>
+                <a
+                  href={`https://sepolia.etherscan.io/address/${CROSSLOAN_CONTRACT_ADDRESS}`}
+                  target="_blank"
+                >
+                  <ExportOutlined />
+                </a>
+              </Space>
+            }
             bordered={false}
             hoverable
             cover={

@@ -129,9 +129,9 @@ forge create --rpc-url $DESTINATION_RPC --private-key $PRIVATE_KEY src/crosschai
 To ensure a successful callback and issue loans, the callback contract(both origin, destination contracts) must have an ETH balance. You can find more details [here](https://dev.reactive.network/system-contract#callback-payments). To fund the callback contracts, run the following command:
 
 ```bash
-cast send $ORIGIN_ADDR --rpc-url $ORIGIN_RPC --private-key $PRIVATE_KEY --value 0.1ether
+cast send $ORIGIN_ADDR --rpc-url $ORIGIN_RPC --private-key $PRIVATE_KEY --value 0.21ether
 
-cast send $DESTINATION_ADDR --rpc-url $DESTINATION_RPC --private-key $PRIVATE_KEY --value 0.4ether # More funds required for issuing loans
+cast send $DESTINATION_ADDR --rpc-url $DESTINATION_RPC --private-key $PRIVATE_KEY --value 0.5ether # More funds required for issuing loans
 ```
 
 ### Deploy Reactive Contract
@@ -156,9 +156,9 @@ This should trigger a callback to the destination chain(Sepolia) to issue loan a
 
 ### Deployed Contracts
 
-- **CollateralManager(Origin):** [0x0dd2c234bcd5c3a8da28176cb69949289c926e39](https://sepolia.etherscan.io/address/0x0dd2c234bcd5c3a8da28176cb69949289c926e39)
-- **CrossLoan(Destination):** [0x50be96d76f30ab81d2c17529859c483cc90b5673](https://sepolia.etherscan.io/address/0x50be96d76f30ab81d2c17529859c483cc90b5673)
-- **CrossLoanReactor Contract:** [0xbbf700909f861a0fa1ea7c53f330e05a67e1505](https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9?screen=info)
+- **CollateralManager(Origin):** [0xB5bA319C406B7AB96143C7cF71236A1CA97C6328](https://sepolia.etherscan.io/address/0xB5bA319C406B7AB96143C7cF71236A1CA97C6328)
+- **CrossLoan(Destination):** [0x6A63429298D0c531Ac8c57eD1a617Ef15426F7FF](https://sepolia.etherscan.io/address/0x6A63429298D0c531Ac8c57eD1a617Ef15426F7FF)
+- **CrossLoanReactor Contract:** [0x1e20d708B046054b8453Cf78645a9b950F8AC728](https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9?screen=info)
 - **RVM:** [0xc7203561EF179333005a9b81215092413aB86aE9](https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9)
 
 ### Running the Demo

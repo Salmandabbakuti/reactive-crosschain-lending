@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Input, Button, Card, Typography, message, Statistic } from "antd";
+import {
+  Input,
+  Button,
+  Card,
+  Typography,
+  message,
+  Statistic,
+  Space
+} from "antd";
 import {
   useReadContract,
   useActiveAccount,
@@ -123,7 +131,7 @@ export default function App() {
     if (!collateralAmountInput)
       return message.error("Please enter a valid amount");
     if (!account) return message.error("Please connect your wallet first!");
-    if (activeChain?.id !== 137)
+    if (activeChain?.id !== 11155111)
       return message.error("Please switch to Polygon network");
     const tx = prepareContractCall({
       contract: collateralManagerContract,
@@ -217,6 +225,97 @@ export default function App() {
           Repay Loan
         </Button>
       </Card>
+      {/* logs div */}
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <Space direction="vertical" size="middle">
+          {
+            // Deposit Collateral Tx Logs
+            isDepositCollateralTxPending && (
+              <Text>Depositing Collateral in progress...</Text>
+            )
+          }
+          {isDepositCollateralTxSuccess && (
+            <Space direction="vertical">
+              <Text strong>Collateral deposited successfully!</Text>
+              <Text type="primary">
+                Note: It may take a few minutes for the collateral to reflect on
+                destination chain (Sepolia) to issue loan
+              </Text>
+              <a
+                href={`https://polygonscan.com/tx/${depositCollateralTxReceipt.transactionHash}`}
+                target="_blank"
+              >
+                View Source Transaction
+              </a>
+              <a
+                href={
+                  "https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9"
+                }
+                target="_blank"
+                rel="noreferrer"
+              >
+                {" "}
+                View Reactive Transaction
+              </a>
+              <a
+                href={`https://sepolia.etherscan.io/address/${account}#internaltx`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {" "}
+                View Destination Balance
+              </a>
+            </Space>
+          )}
+          {isDepositCollateralTxError && (
+            <Text type="danger">
+              Failed to deposit collateral: {depositCollateralTxError?.message}
+            </Text>
+          )}
+          {
+            // Repay Loan Tx Logs
+            isRepayLoanTxPending && <Text>Repaying Loan in progress...</Text>
+          }
+          {isRepayLoanTxSuccess && (
+            <Space direction="vertical">
+              <Text strong>Loan repaid successfully!</Text>
+              <Text type="primary">
+                Note: It may take a few minutes for the collateral to be
+                released on the source chain (Polygon)
+              </Text>
+              <a
+                href={`https://sepolia.etherscan.io/tx/${repayLoanTxReceipt.transactionHash}`}
+                target="_blank"
+              >
+                View Source Transaction
+              </a>
+              <a
+                href={
+                  "https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9"
+                }
+                target="_blank"
+                rel="noreferrer"
+              >
+                {" "}
+                View Reactive Transaction
+              </a>
+              <a
+                href={`https://polygonscan.com/address/${account}#internaltx`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {" "}
+                View Destination Balance
+              </a>
+            </Space>
+          )}
+          {isRepayLoanTxError && (
+            <Text type="danger">
+              Failed to repay loan: {repayLoanTxError?.message}
+            </Text>
+          )}
+        </Space>
+      </div>
     </>
   );
 }

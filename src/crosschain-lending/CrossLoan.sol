@@ -36,6 +36,14 @@ contract CrossLoan is AbstractCallback {
         _;
     }
 
+    /*
+     * @notice Issue loan to the user upon collateral deposit
+     * @dev This function will be triggered by authorized reactive callback proxy contract
+     * when the user deposits collateral on the source chain
+     * @param sender Address of the sender - reactvm address
+     * @param user Address of the user
+     * @param amount Amount of loan to issue
+     */
     function issueLoan(
         address sender,
         address user,
@@ -49,6 +57,12 @@ contract CrossLoan is AbstractCallback {
         emit LoanIssued(tx.origin, msg.sender, user, amount);
     }
 
+    /**
+     * @notice Repay the loan by the user
+     * @dev emits LoanRepaid event, which will be listened by
+     * reactive contract and trigger callback to release the collateral to user on source chain
+     * @param amount Amount to repay
+     */
     function repayLoan(uint256 amount) external payable {
         // Logic for repayment
         require(

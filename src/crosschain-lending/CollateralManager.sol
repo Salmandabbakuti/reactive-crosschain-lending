@@ -35,6 +35,12 @@ contract CollateralManager is AbstractCallback {
         _;
     }
 
+    /**
+     * @notice Deposit collateral to the contract by the user
+     * @dev emits CollateralDeposited event, which will be listened by
+     * reactive contract and trigger callback to issue the loan to user on destination chain
+     * @param amount Amount of collateral to deposit
+     */
     function depositCollateral(uint256 amount) external payable {
         // Transfer collateral to contract and lock
         require(msg.value == amount, "Incorrect collateral amount!");
@@ -48,6 +54,14 @@ contract CollateralManager is AbstractCallback {
         );
     }
 
+    /**
+     * @notice Release collateral after repayment of loan
+     * @dev This function will be triggered by authorized reactive callback proxy contract
+     * when the loan is repaid by the user on destination chain
+     * @param sender Address of the sender- reactvm address
+     * @param user Address of the user to release collateral
+     * @param amount Amount of collateral to release
+     */
     function releaseCollateral(
         address sender,
         address user,

@@ -12,28 +12,11 @@ This project illustrates a basic use case of the Reactive Network, showcasing a 
 
 - **Loan Repayment:** Users can repay the total loan amount at once or in installments. The Reactive Contract listens for the `LoanRepaid` event on the destination chain(Sepolia) and triggers a callback to the origin chain(Avalanche) to release the collateral to the user's address on the origin chain(Avalanche).
 
-- **Intuitive UI:** The demo includes a simple UI(Uniswap's Swap like UI) to interact with the contracts. Users can request a bridge transfer from one chain to another by entering the amount of tokens to be bridged.
+- **Intuitive UI:** The demo includes a user-friendly UI to interact with the contracts. Users can connect their wallets, deposit collateral, request loans, repay loans, and track the statuses.
 
-- **Realtime Updates:** The UI updates token balances in real-time to reflect the status of the bridge transfer. Users can track the progress of the bridge transfer, from the request to the bridging of tokens on the destination chain.
+- **Realtime Updates:** The UI updates user balances, collateral and loan amounts in real-time to reflect the latest contract interactions.
 
-```mermaid
-%%{ init: { 'flowchart': { 'curve': 'basis' } } }%%
-flowchart LR
-    subgraph Reactive Network
-        subgraph ReactVM
-            RC(ReactiveBridge Contract)
-        end
-    end
-
-    subgraph Origin1
-        OCC(CrossToken Contract)
-    end
-    subgraph Origin2
-        DCC(CrossToken Contrat)
-    end
-OCC -.->|BridgeRequest Event| RC
-RC -.->|Callback| DCC
-```
+![crosslending-flow drawio-dark](https://github.com/user-attachments/assets/ce8baf23-7da5-4daf-bd41-1fe0a2207177)
 
 ## Contracts
 

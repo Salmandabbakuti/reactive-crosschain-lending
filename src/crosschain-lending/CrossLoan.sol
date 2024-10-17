@@ -36,7 +36,7 @@ contract CrossLoan is AbstractCallback {
         _;
     }
 
-    /*
+    /**
      * @notice Issue loan to the user upon collateral deposit
      * @dev This function will be triggered by authorized reactive callback proxy contract
      * when the user deposits collateral on the source chain

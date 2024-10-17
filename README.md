@@ -16,7 +16,7 @@ This project illustrates a basic use case of the Reactive Network, showcasing a 
 
 - **Realtime Updates:** The UI updates user balances, collateral and loan amounts in real-time to reflect the latest contract interactions.
 
-![crosslending-flow drawio-dark](https://github.com/user-attachments/assets/ce8baf23-7da5-4daf-bd41-1fe0a2207177)
+![crosslending-flow](https://github.com/user-attachments/assets/8992897b-e3ea-45f0-8614-970ba29339a5)
 
 ## Contracts
 
@@ -140,9 +140,9 @@ This should trigger a callback to the destination chain(Sepolia) to issue loan a
 
 ### Deployed Contracts
 
-- **CollateralManager(Origin):** [0xB5bA319C406B7AB96143C7cF71236A1CA97C6328](https://sepolia.etherscan.io/address/0xB5bA319C406B7AB96143C7cF71236A1CA97C6328)
-- **CrossLoan(Destination):** [0x6A63429298D0c531Ac8c57eD1a617Ef15426F7FF](https://sepolia.etherscan.io/address/0x6A63429298D0c531Ac8c57eD1a617Ef15426F7FF)
-- **CrossLoanReactor Contract:** [0x1e20d708B046054b8453Cf78645a9b950F8AC728](https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9?screen=info)
+- **CollateralManager(Origin):** [0xd231fE46b4A8500d4aDD5AD98EC3c4ca56E7dee4](https://snowtrace.io/address/0xd231fE46b4A8500d4aDD5AD98EC3c4ca56E7dee4)
+- **CrossLoan(Destination):** [0xAe66deFEfF27a8F82168D999d809E34a002f9627](https://sepolia.etherscan.io/address/0xAe66deFEfF27a8F82168D999d809E34a002f9627)
+- **CrossLoanReactor Contract:** [0x9F857f28B81aBDC0c9bFd94eA3CDAB04f893B8Ab](https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9?screen=info)
 - **RVM:** [0xc7203561EF179333005a9b81215092413aB86aE9](https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9)
 
 ### Running the Demo

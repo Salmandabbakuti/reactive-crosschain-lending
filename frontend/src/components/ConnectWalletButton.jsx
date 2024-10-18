@@ -16,7 +16,7 @@ export default function ConnectWalletButton() {
   return (
     <ConnectButton
       client={thirdwebClient}
-      chain={avalanche} // default chain to connect
+      // chain={avalanche} // default chain to connect
       chains={[avalanche, sepolia]} // chains to connect
       wallets={thirdwebWallets}
       recommendedWallets={[

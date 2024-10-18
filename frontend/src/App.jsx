@@ -209,6 +209,8 @@ export default function App() {
             {/* note text */}
             <Button
               type="primary"
+              size="large"
+              shape="round"
               block
               loading={isDepositCollateralTxPending}
               onClick={handleDepositCollateral}
@@ -282,11 +284,13 @@ export default function App() {
               placeholder="Enter repayment amount (ETH)"
               value={repayAmountInput}
               onChange={(e) => setRepayAmountInput(e.target.value)}
-              style={{ margin: "18px 0" }}
+              style={{ margin: "27px 0" }}
               addonAfter={"ETH"}
             />
             <Button
               type="primary"
+              size="large"
+              shape="round"
               block
               loading={isRepayLoanTxPending}
               onClick={handleRepayLoan}

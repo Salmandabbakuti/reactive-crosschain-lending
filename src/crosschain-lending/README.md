@@ -171,7 +171,7 @@ https://kopli.reactscan.net/rvm/0xc7203561ef179333005a9b81215092413ab86ae9/45
 
 3. User receives a loan of 0.004 ETH on the destination chain(Sepolia).
 
-https://sepolia.etherscan.io/address/0xc7203561EF179333005a9b81215092413aB86aE9#internaltx
+https://sepolia.etherscan.io/tx/0xa64aceff981f2a89f8533cce34baad1fd742712ad941c780af13b52f3f025d4b
 
 4. User repays the partial loan amount of 0.002 ETH on the destination chain(Sepolia).
 
@@ -183,4 +183,4 @@ https://kopli.reactscan.net/rvm/0xc7203561ef179333005a9b81215092413ab86ae9/46
 
 6. User receives the collateral of 0.002 AVAX on the origin chain(Avalanche).
 
-https://snowtrace.io/address/0xc7203561ef179333005a9b81215092413ab86ae9
+https://snowtrace.io/tx/0x601f804645eeb465f9aae3921c46c41d383f5278f12181975e5d0870585fca7c

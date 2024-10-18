@@ -52,7 +52,7 @@ export default function SiteLayout({ children }) {
           ©{new Date().getFullYear()} Cross Lending Dapp. Powered by Reactive
           Network
         </a>
-        <p style={{ fontSize: "12px" }}>v0.0.1</p>
+        <p style={{ fontSize: "12px" }}>v0.0.2</p>
       </Footer>
     </Layout>
   );

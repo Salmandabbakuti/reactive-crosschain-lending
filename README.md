@@ -4,7 +4,7 @@
 
 This project illustrates a basic use case of the Reactive Network, showcasing a cross-chain lending scenario. The demo involves three contracts, one each for the origin chain(Avalanche), destination chain(Sepolia), and a Reactive Contract that listens for events on both chains and triggers callbacks to facilitate cross-chain interactions. The demo allows users to deposit collateral on the origin chain(Avalanche) to request a loan on the destination chain(Sepolia). The Reactive Contract listens for the `CollateralDeposited` event on the origin chain(Avalanche) and triggers a callback to the destination chain(Sepolia) to issue the loan amount to the user's address on the destination chain(Sepolia). Users can repay the total loan amount at once or in installments. The Reactive Contract listens for the `LoanRepaid` event on the destination chain(Sepolia) and triggers a callback to the origin chain(Avalanche) to release the collateral to the user's address on the origin chain(Avalanche).
 
-![Screen1](https://github.com/user-attachments/assets/94362e16-fb84-4325-bef8-1559e1b7141d)
+![Screen1](https://github.com/user-attachments/assets/f7eb785e-27a6-4668-b5a6-b21382afabff)
 
 ### Features
 
@@ -163,7 +163,7 @@ Open your browser and navigate to `http://localhost:3000` to view the demo.
 
 ### Demo
 
-![Screen1](https://github.com/user-attachments/assets/94362e16-fb84-4325-bef8-1559e1b7141d)
+![Screen1](https://github.com/user-attachments/assets/f7eb785e-27a6-4668-b5a6-b21382afabff)
 
 ### Crosschain Lending Workflow
 
@@ -193,7 +193,7 @@ https://kopli.reactscan.net/rvm/0xc7203561ef179333005a9b81215092413ab86ae9/45
 
 3. User receives a loan of 0.004 ETH on the destination chain(Sepolia).
 
-https://sepolia.etherscan.io/address/0xc7203561EF179333005a9b81215092413aB86aE9#internaltx
+https://sepolia.etherscan.io/tx/0xa64aceff981f2a89f8533cce34baad1fd742712ad941c780af13b52f3f025d4b
 
 4. User repays the partial loan amount of 0.002 ETH on the destination chain(Sepolia).
 
@@ -205,7 +205,7 @@ https://kopli.reactscan.net/rvm/0xc7203561ef179333005a9b81215092413ab86ae9/46
 
 6. User receives the collateral of 0.002 AVAX on the origin chain(Avalanche).
 
-https://snowtrace.io/address/0xc7203561ef179333005a9b81215092413ab86ae9
+https://snowtrace.io/tx/0x601f804645eeb465f9aae3921c46c41d383f5278f12181975e5d0870585fca7c
 
 ## Built With
 

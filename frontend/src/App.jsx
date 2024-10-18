@@ -139,12 +139,11 @@ export default function App() {
             style={{
               maxWidth: 600,
               margin: "0 auto",
-              padding: "20px",
               borderRadius: "20px"
             }}
             title={
               <Space>
-                <Text>Collateral Details (Avalanche)</Text>
+                <Text>Collateral Manager (Avalanche)</Text>
                 <a
                   href={`https://snowtrace.io/address/${COLLATERAL_MANAGER_CONTRACT_ADDRESS}`}
                   target="_blank"
@@ -153,7 +152,7 @@ export default function App() {
                 </a>
               </Space>
             }
-            bordered={false}
+            bordered
             hoverable
             cover={
               <img
@@ -195,8 +194,8 @@ export default function App() {
             <label>Deposit Collateral: </label>
             <br />
             <Text type="secondary">
-              Note: *For demo purposes, the collateral amount is limited to 0.1
-              AVAX to mitigate loss of real funds in case of any error
+              * For demo purposes, the collateral amount is limited to 0.1 AVAX
+              to mitigate loss of real funds in case of any error
             </Text>
             <Input
               type="number"
@@ -224,12 +223,11 @@ export default function App() {
             style={{
               maxWidth: 600,
               margin: "0 auto",
-              padding: "20px",
               borderRadius: "20px"
             }}
             title={
               <Space>
-                <Text>Loan Details (Sepolia)</Text>
+                <Text>Loan Manager (Sepolia)</Text>
                 <a
                   href={`https://sepolia.etherscan.io/address/${CROSSLOAN_CONTRACT_ADDRESS}`}
                   target="_blank"
@@ -238,7 +236,7 @@ export default function App() {
                 </a>
               </Space>
             }
-            bordered={false}
+            bordered
             hoverable
             cover={
               <img

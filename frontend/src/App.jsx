@@ -10,9 +10,14 @@ import {
   Row,
   Col,
   Divider,
-  Tooltip
+  Tooltip,
+  Popover
 } from "antd";
-import { ExportOutlined } from "@ant-design/icons";
+import {
+  ExportOutlined,
+  InfoCircleOutlined,
+  QuestionCircleOutlined
+} from "@ant-design/icons";
 import {
   useReadContract,
   useActiveAccount,
@@ -131,6 +136,12 @@ export default function App() {
       <Row gutter={[16, 16]}>
         <Col span={12}>
           <Card
+            style={{
+              maxWidth: 600,
+              margin: "0 auto",
+              padding: "20px",
+              borderRadius: "20px"
+            }}
             title={
               <Space>
                 <Text>Collateral Details (Avalanche)</Text>
@@ -158,8 +169,8 @@ export default function App() {
                 <Tooltip title="Balance on Avalanche">
                   <Statistic
                     title="Balance"
-                    value={avalancheBalance?.displayValue}
-                    suffix={avalancheBalance?.symbol}
+                    value={avalancheBalance?.displayValue || ""}
+                    suffix={avalancheBalance?.symbol || ""}
                     precision={6}
                     valueStyle={{ color: "#3f8600", fontSize: "16px" }}
                   />
@@ -167,17 +178,33 @@ export default function App() {
               )
             }
           >
-            <div>
-              <Text>Deposited Collateral: </Text>
-              <Text strong> {toEther(depositedCollateral || 0n)} AVAX</Text>
-            </div>
+            <Statistic
+              style={{ textAlign: "center" }}
+              title={
+                <Text>
+                  Deposited Collateral{" "}
+                  <Popover content="Collateral is released as you repay the loan">
+                    <QuestionCircleOutlined />
+                  </Popover>
+                </Text>
+              }
+              value={toEther(depositedCollateral || 0n)}
+              suffix="AVAX"
+            />
             <Divider />
+            <label>Deposit Collateral: </label>
+            <br />
+            <Text type="secondary">
+              Note: *For demo purposes, the collateral amount is limited to 0.1
+              AVAX to mitigate loss of real funds in case of any error
+            </Text>
             <Input
               type="number"
-              placeholder="Enter collateral amount (ETH)"
+              size="large"
+              placeholder="Enter collateral amount (AVAX)"
               value={collateralAmountInput}
               onChange={(e) => setCollateralAmountInput(e.target.value)}
-              style={{ marginBottom: "10px" }}
+              style={{ margin: "10px 0" }}
               addonAfter={"AVAX"}
             />
             {/* note text */}
@@ -189,15 +216,17 @@ export default function App() {
             >
               Deposit Collateral
             </Button>
-            <Text type="primary">
-              Note: *For demo purposes, the collateral amount is limited to 0.1
-              AVAX to mitigate loss of real funds in case of any error
-            </Text>
           </Card>
         </Col>
 
         <Col span={12}>
           <Card
+            style={{
+              maxWidth: 600,
+              margin: "0 auto",
+              padding: "20px",
+              borderRadius: "20px"
+            }}
             title={
               <Space>
                 <Text>Loan Details (Sepolia)</Text>
@@ -234,18 +263,28 @@ export default function App() {
               )
             }
           >
-            <div>
-              <Text>Loan Amount: </Text>
-              <Text strong>{toEther(loanAmount || 0n)} ETH</Text>
-            </div>
+            <Statistic
+              style={{ textAlign: "center" }}
+              title={
+                <Text>
+                  Loan Amount{" "}
+                  <Popover content="You'll receive a loan equal to your collateral on Avalanche">
+                    <InfoCircleOutlined />
+                  </Popover>
+                </Text>
+              }
+              value={toEther(loanAmount || 0n)}
+              suffix="ETH"
+            />
             <Divider />
+            <label>Repay Loan: </label>
             <Input
-              // variant="borderless"
               type="number"
+              size="large"
               placeholder="Enter repayment amount (ETH)"
               value={repayAmountInput}
               onChange={(e) => setRepayAmountInput(e.target.value)}
-              style={{ marginBottom: "10px" }}
+              style={{ margin: "18px 0" }}
               addonAfter={"ETH"}
             />
             <Button
@@ -256,11 +295,6 @@ export default function App() {
             >
               Repay Loan
             </Button>
-            <Text type="primary">
-              Note: *You will receive same amount of loan as collateral
-              deposited on Avalanche. As you repay the loan, the collateral will
-              be released back to you
-            </Text>
           </Card>
         </Col>
       </Row>
@@ -340,7 +374,7 @@ export default function App() {
                 View Reactive Transaction
               </a>
               <a
-                href={`https://snowtrace.io/address/${account}#internaltx`}
+                href={`https://snowtrace.io/address/${account}/internalTx`}
                 target="_blank"
                 rel="noreferrer"
               >

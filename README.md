@@ -4,7 +4,7 @@
 
 This project illustrates a basic use case of the Reactive Network, showcasing a cross-chain lending scenario. The demo involves three contracts, one each for the origin chain(Avalanche), destination chain(Sepolia), and a Reactive Contract that listens for events on both chains and triggers callbacks to facilitate cross-chain interactions. The demo allows users to deposit collateral on the origin chain(Avalanche) to request a loan on the destination chain(Sepolia). The Reactive Contract listens for the `CollateralDeposited` event on the origin chain(Avalanche) and triggers a callback to the destination chain(Sepolia) to issue the loan amount to the user's address on the destination chain(Sepolia). Users can repay the total loan amount at once or in installments. The Reactive Contract listens for the `LoanRepaid` event on the destination chain(Sepolia) and triggers a callback to the origin chain(Avalanche) to release the collateral to the user's address on the origin chain(Avalanche).
 
-![Screen1](https://github.com/user-attachments/assets/f7eb785e-27a6-4668-b5a6-b21382afabff)
+![Screenshot 2024-10-18 190821](https://github.com/user-attachments/assets/9bc4bfd4-9e29-4b3e-a4bf-50f6badeb4df)
 
 ### Features
 

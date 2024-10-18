@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Input,
   Button,
@@ -16,7 +16,8 @@ import {
 import {
   ExportOutlined,
   InfoCircleOutlined,
-  QuestionCircleOutlined
+  QuestionCircleOutlined,
+  WalletOutlined
 } from "@ant-design/icons";
 import {
   useReadContract,
@@ -47,29 +48,41 @@ export default function App() {
   const { address: account } = useActiveAccount() || {};
   const activeChain = useActiveWalletChain() || {};
 
-  const { data: avalancheBalance, error: avalancheBalanceError } =
-    useWalletBalance({
-      chain: avalanche,
-      address: account,
-      client: thirdwebClient
-    });
+  const {
+    isLoading: isAvalancheBalanceLoading,
+    data: avalancheBalance,
+    error: avalancheBalanceError
+  } = useWalletBalance({
+    chain: avalanche,
+    address: account,
+    client: thirdwebClient
+  });
 
-  const { data: sepoliaBalance, error: sepoliaBalanceError } = useWalletBalance(
-    {
-      chain: sepolia,
-      address: account,
-      client: thirdwebClient
-    }
-  );
+  const {
+    isLoading: isSepoliaBalanceLoading,
+    data: sepoliaBalance,
+    error: sepoliaBalanceError
+  } = useWalletBalance({
+    chain: sepolia,
+    address: account,
+    client: thirdwebClient
+  });
 
-  const { data: depositedCollateral, error: depositedCollateralError } =
-    useReadContract({
-      contract: collateralManagerContract,
-      method: "function collateralAmountByAddr(address) view returns (uint256)",
-      params: [account]
-    });
+  const {
+    isLoading: isDepositedCollateralLoading,
+    data: depositedCollateral,
+    error: depositedCollateralError
+  } = useReadContract({
+    contract: collateralManagerContract,
+    method: "function collateralAmountByAddr(address) view returns (uint256)",
+    params: [account]
+  });
 
-  const { data: loanAmount, error: loanAmountError } = useReadContract({
+  const {
+    isLoading: isLoanAmountLoading,
+    data: loanAmount,
+    error: loanAmountError
+  } = useReadContract({
     contract: crossLoanContract,
     method: "function loanAmountByAddr(address) view returns (uint256)",
     params: [account]
@@ -165,13 +178,18 @@ export default function App() {
             }
             extra={
               account && (
-                <Tooltip title="Balance on Avalanche">
+                <Tooltip title="Your Balance on Avalanche">
                   <Statistic
-                    title="Balance"
+                    loading={isAvalancheBalanceLoading}
                     value={avalancheBalance?.displayValue || ""}
+                    prefix={<WalletOutlined />}
                     suffix={avalancheBalance?.symbol || ""}
                     precision={6}
-                    valueStyle={{ color: "#3f8600", fontSize: "16px" }}
+                    valueStyle={{
+                      // color: "#3f8600",
+                      fontSize: "14px",
+                      fontWeight: "bold"
+                    }}
                   />
                 </Tooltip>
               )
@@ -179,6 +197,7 @@ export default function App() {
           >
             <Statistic
               style={{ textAlign: "center" }}
+              loading={isDepositedCollateralLoading}
               title={
                 <Text>
                   Deposited Collateral{" "}
@@ -188,6 +207,7 @@ export default function App() {
                 </Text>
               }
               value={toEther(depositedCollateral || 0n)}
+              valueStyle={{ fontWeight: "bold" }}
               suffix="AVAX"
             />
             <Divider />
@@ -251,13 +271,18 @@ export default function App() {
             }
             extra={
               account && (
-                <Tooltip title="Balance on Sepolia">
+                <Tooltip title="Your Balance on Sepolia">
                   <Statistic
-                    title="Balance"
+                    loading={isSepoliaBalanceLoading}
                     value={sepoliaBalance?.displayValue || ""}
                     suffix={sepoliaBalance?.symbol || ""}
+                    prefix={<WalletOutlined />}
                     precision={6}
-                    valueStyle={{ color: "#3f8600", fontSize: "16px" }}
+                    valueStyle={{
+                      // color: "#3f8600",
+                      fontSize: "14px",
+                      fontWeight: "bold"
+                    }}
                   />
                 </Tooltip>
               )
@@ -265,6 +290,7 @@ export default function App() {
           >
             <Statistic
               style={{ textAlign: "center" }}
+              loading={isLoanAmountLoading}
               title={
                 <Text>
                   Loan Amount{" "}
@@ -274,6 +300,7 @@ export default function App() {
                 </Text>
               }
               value={toEther(loanAmount || 0n)}
+              valueStyle={{ fontWeight: "bold" }}
               suffix="ETH"
             />
             <Divider />

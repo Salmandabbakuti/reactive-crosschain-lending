@@ -310,8 +310,8 @@ export default function App() {
             <Space direction="vertical">
               <Text strong>Collateral deposited successfully!</Text>
               <Text type="primary">
-                Note: It may take a few minutes for the collateral to reflect on
-                destination chain (Sepolia) to issue loan
+                Note: It may take a few minutes to issue loan on destination
+                chain (Sepolia)
               </Text>
               <a
                 href={`https://snowtrace.io/tx/${depositCollateralTxReceipt.transactionHash}`}

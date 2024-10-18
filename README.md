@@ -163,7 +163,7 @@ Open your browser and navigate to `http://localhost:3000` to view the demo.
 
 ### Demo
 
-![Demo1](https://github.com/user-attachments/assets/82e21e79-a70e-4f86-a24e-f793ef0cdada)
+https://github.com/user-attachments/assets/82e21e79-a70e-4f86-a24e-f793ef0cdada
 
 ### Crosschain Lending Workflow
 

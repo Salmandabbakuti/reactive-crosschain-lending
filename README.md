@@ -76,8 +76,7 @@ This project is scaffolded using Foundry, a smart contract development toolchain
 
 Directory Structure:
 
-````bash
-.
+```bash
 ├── README.md
 ├── frontend
 ├── lib # Foundry library
@@ -86,7 +85,7 @@ Directory Structure:
 │         ├── CollateralManager.sol
 │         ├── CrossLoan.sol
 │         ├── CrossLoanReactor.sol
-
+```
 
 Install dependencies and compile the contracts:
 
@@ -94,7 +93,7 @@ Install dependencies and compile the contracts:
 forge install
 
 forge compile
-````
+```
 
 Deploy the `CollateralManager` contract with authorized callback sender on origin(i.e Avalanche) and assign the `Deployed to` address from the response to `ORIGIN_ADDR`.
 

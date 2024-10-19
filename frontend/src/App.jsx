@@ -1,370 +1,353 @@
 import { useState } from "react";
 import {
-  useActiveAccount,
-  useActiveWalletChain,
-  useWalletBalance,
-  useSendAndConfirmTransaction
-} from "thirdweb/react";
-import {
-  Card,
-  Select,
   Input,
   Button,
+  Card,
   Typography,
-  Divider,
+  message,
+  Statistic,
   Space,
-  message
+  Row,
+  Col,
+  Divider,
+  Tooltip,
+  Popover
 } from "antd";
-import { SwapOutlined, SettingOutlined } from "@ant-design/icons";
-import { sepolia, polygon } from "thirdweb/chains";
-import { prepareContractCall } from "thirdweb";
-import { toWei } from "thirdweb/utils";
-import { thirdwebClient, contract } from "./utils";
 import {
-  POLYGON_XT_CONTRACT_ADDRESS,
-  SEPOLIA_XT_CONTRACT_ADDRESS
+  ExportOutlined,
+  InfoCircleOutlined,
+  QuestionCircleOutlined,
+  WalletOutlined
+} from "@ant-design/icons";
+import {
+  useReadContract,
+  useActiveAccount,
+  useSendAndConfirmTransaction,
+  useWalletBalance,
+  useActiveWalletChain
+} from "thirdweb/react";
+import { sepolia, avalanche } from "thirdweb/chains";
+import { toEther, toWei } from "thirdweb/utils";
+import { prepareContractCall } from "thirdweb";
+import {
+  crossLoanContract,
+  collateralManagerContract,
+  thirdwebClient
+} from "./utils";
+import {
+  COLLATERAL_MANAGER_CONTRACT_ADDRESS,
+  CROSSLOAN_CONTRACT_ADDRESS
 } from "./utils/constants";
 
-const { Option } = Select;
 const { Text } = Typography;
 
 export default function App() {
-  const [bridgeAmountInput, setBridgeAmountInput] = useState(null);
-  const [fromToken, setFromToken] = useState("xt-p");
-  const [toToken, setToToken] = useState("xt-s");
-  const [log, setLog] = useState({
-    message: "",
-    type: ""
-  });
+  const [repayAmountInput, setRepayAmountInput] = useState("");
+  const [collateralAmountInput, setCollateralAmountInput] = useState("");
 
-  const accountObj = useActiveAccount() || {};
-  const account = accountObj?.address?.toLowerCase();
+  const { address: account } = useActiveAccount() || {};
   const activeChain = useActiveWalletChain() || {};
-  const {
-    mutate: sendAndConfirmBridgeRequestTx,
-    data: bridgeRequestTxReceipt,
-    error: bridgeRequestTxError,
-    failureReason: bridgeRequestTxFailureReason,
-    isPending: isBridgeRequestPending,
-    isError: isBridgeRequestError,
-    isSuccess: isBridgeRequestSuccess
-  } = useSendAndConfirmTransaction();
 
   const {
-    mutate: sendAndConfirmMintTx,
-    data: mintTransactionReceipt,
-    error: mintTxError,
-    failureReason: mintTxFailureReason,
-    isPending: isMintPending,
-    isError: isMintError
-  } = useSendAndConfirmTransaction();
-
-  console.log("bridge tx->", {
-    bridgeRequestTxReceipt,
-    bridgeRequestTxError,
-    bridgeRequestTxFailureReason,
-    isBridgeRequestPending,
-    isBridgeRequestError,
-    isBridgeRequestSuccess
+    isLoading: isAvalancheBalanceLoading,
+    data: avalancheBalance,
+    error: avalancheBalanceError
+  } = useWalletBalance({
+    chain: avalanche,
+    address: account,
+    client: thirdwebClient
   });
 
   const {
-    data: sepoliaXT,
-    isLoading: isSepoliaXTLoading,
-    isError: isSepoliaXTError
+    isLoading: isSepoliaBalanceLoading,
+    data: sepoliaBalance,
+    error: sepoliaBalanceError
   } = useWalletBalance({
     chain: sepolia,
     address: account,
-    client: thirdwebClient,
-    tokenAddress: SEPOLIA_XT_CONTRACT_ADDRESS
+    client: thirdwebClient
   });
-  console.log(
-    "Sepolia XT balance",
-    sepoliaXT,
-    isSepoliaXTLoading,
-    isSepoliaXTError
-  );
 
   const {
-    data: polygonXT,
-    isLoading: isPolygonXTLoading,
-    isError: isPolygonXTError
-  } = useWalletBalance({
-    chain: polygon,
-    address: account,
-    client: thirdwebClient,
-    tokenAddress: POLYGON_XT_CONTRACT_ADDRESS
+    isLoading: isDepositedCollateralLoading,
+    data: depositedCollateral,
+    error: depositedCollateralError
+  } = useReadContract({
+    contract: collateralManagerContract,
+    method: "function collateralAmountByAddr(address) view returns (uint256)",
+    params: [account]
   });
-  console.log(
-    "Polygon XT balance",
-    polygonXT,
-    isPolygonXTLoading,
-    isPolygonXTError
-  );
 
-  const handleBridgeRequest = () => {
-    console.log("Bridge Requested");
-    setLog({ message: "", type: "" });
-    if (!bridgeAmountInput) {
-      return setLog({
-        message: "Please enter an amount to bridge",
-        type: "warning"
-      });
-    }
-    if (!account) {
-      return setLog({
-        message: "Please connect your wallet",
-        type: "warning"
-      });
-    }
-    if (activeChain?.id !== 137) {
-      return setLog({
-        message: "Please connect to Polygon Network",
-        type: "warning"
-      });
-    }
-    const bridgeAmountInWei = toWei(bridgeAmountInput);
-    if (bridgeAmountInWei > polygonXT?.value)
-      return setLog({
-        message: "Insufficient Balance",
-        type: "warning"
-      });
-    try {
-      const tx = prepareContractCall({
-        contract,
-        method: "function bridgeRequest(uint256 _amount)",
-        params: [bridgeAmountInWei]
-      });
-      sendAndConfirmBridgeRequestTx(tx);
-    } catch (error) {
-      console.error("Bridge Request Error", error);
-      setLog({ message: "Bridge Request Failed", type: "danger" });
-    }
+  const {
+    isLoading: isLoanAmountLoading,
+    data: loanAmount,
+    error: loanAmountError
+  } = useReadContract({
+    contract: crossLoanContract,
+    method: "function loanAmountByAddr(address) view returns (uint256)",
+    params: [account]
+  });
+
+  console.log("avalancheBalance", avalancheBalance);
+  console.log("sepoliaBalance", sepoliaBalance);
+  console.log("depositedCollateral", depositedCollateral);
+  console.log("loanAmount", loanAmount);
+  console.error("avalancheBalanceError", avalancheBalanceError);
+  console.error("sepoliaBalanceError", sepoliaBalanceError);
+  console.error("depositedCollateralError", depositedCollateralError);
+  console.error("loanAmountError", loanAmountError);
+
+  const {
+    mutate: sendAndConfirmDepositCollateralTx,
+    isError: isDepositCollateralTxError,
+    data: depositCollateralTxReceipt,
+    error: depositCollateralTxError,
+    isPending: isDepositCollateralTxPending,
+    isSuccess: isDepositCollateralTxSuccess
+  } = useSendAndConfirmTransaction();
+
+  const {
+    mutate: sendAndConfirmRepayLoanTx,
+    isError: isRepayLoanTxError,
+    data: repayLoanTxReceipt,
+    error: repayLoanTxError,
+    isPending: isRepayLoanTxPending,
+    isSuccess: isRepayLoanTxSuccess
+  } = useSendAndConfirmTransaction();
+
+  const handleDepositCollateral = () => {
+    if (!collateralAmountInput)
+      return message.error("Please enter a valid amount");
+    if (!account) return message.error("Please connect your wallet first!");
+    if (activeChain?.id !== avalanche.id)
+      return message.error("Please switch to Avalanche network");
+    const tx = prepareContractCall({
+      contract: collateralManagerContract,
+      method: "function depositCollateral(uint256 _amount)",
+      params: [toWei(collateralAmountInput)],
+      value: toWei(collateralAmountInput)
+    });
+    sendAndConfirmDepositCollateralTx(tx);
   };
 
-  const handleMint = () => {
-    console.log("Mint Requested");
-    setLog({ message: "", type: "" });
-    if (!account) {
-      return setLog({
-        message: "Please connect your wallet",
-        type: "warning"
-      });
-    }
-    if (activeChain?.id !== 137) {
-      return setLog({
-        message: "Please connect to Polygon Network",
-        type: "warning"
-      });
-    }
+  const handleRepayLoan = () => {
+    if (!repayAmountInput) return message.error("Please enter a valid amount");
+    if (!account) return message.error("Please connect your wallet first!");
+    if (activeChain?.id !== sepolia.id)
+      return message.error("Please switch to Sepolia network");
     const tx = prepareContractCall({
-      contract,
-      method: "function mint(address _receiver, uint256 _amount)",
-      params: [account, toWei("50")]
+      contract: crossLoanContract,
+      method: "function repayLoan(uint256 _amount)",
+      params: [toWei(repayAmountInput)],
+      value: toWei(repayAmountInput)
     });
-    sendAndConfirmMintTx(tx);
+    sendAndConfirmRepayLoanTx(tx);
   };
 
   return (
-    <Card
-      title="Bridge"
-      extra={
-        <Space>
-          {
-            // if bridge amount is greater than account balance, show mint button
-            toWei(bridgeAmountInput || "0") > polygonXT?.value && (
-              <Text type="secondary">
-                Not enough XT on Polygon to bridge?{" "}
-                <Button
-                  title="Mints 50 XT on Polygon for testing"
-                  type="link"
-                  onClick={handleMint}
-                  loading={isMintPending}
+    <>
+      <Row gutter={[16, 16]}>
+        <Col span={12}>
+          <Card
+            style={{
+              maxWidth: 600,
+              margin: "0 auto",
+              borderRadius: "20px"
+            }}
+            title={
+              <Space>
+                <Text>Collateral Manager (Avalanche)</Text>
+                <a
+                  href={`https://snowtrace.io/address/${COLLATERAL_MANAGER_CONTRACT_ADDRESS}`}
+                  target="_blank"
                 >
-                  Mint
-                </Button>
-              </Text>
+                  <ExportOutlined />
+                </a>
+              </Space>
+            }
+            bordered
+            hoverable
+            cover={
+              <img
+                src="./avax-logo.svg"
+                alt="avax-logo"
+                width={40}
+                height={40}
+                style={{ marginTop: "10px" }}
+              />
+            }
+            extra={
+              account && (
+                <Tooltip title="Your Balance on Avalanche">
+                  <Statistic
+                    loading={isAvalancheBalanceLoading}
+                    value={avalancheBalance?.displayValue || ""}
+                    prefix={<WalletOutlined />}
+                    suffix={avalancheBalance?.symbol || ""}
+                    precision={6}
+                    valueStyle={{
+                      // color: "#3f8600",
+                      fontSize: "14px",
+                      fontWeight: "bold"
+                    }}
+                  />
+                </Tooltip>
+              )
+            }
+          >
+            <Statistic
+              style={{ textAlign: "center" }}
+              loading={isDepositedCollateralLoading}
+              title={
+                <Text>
+                  Deposited Collateral{" "}
+                  <Popover content="Collateral is released as you repay the loan">
+                    <QuestionCircleOutlined />
+                  </Popover>
+                </Text>
+              }
+              value={toEther(depositedCollateral || 0n)}
+              valueStyle={{ fontWeight: "bold" }}
+              suffix="AVAX"
+            />
+            <Divider />
+            <label>Deposit Collateral: </label>
+            <br />
+            <Text type="secondary">
+              * For demo purposes, the collateral amount is limited to 0.1 AVAX
+              to mitigate loss of real funds in case of any error
+            </Text>
+            <Input
+              type="number"
+              size="large"
+              placeholder="Enter collateral amount (AVAX)"
+              value={collateralAmountInput}
+              onChange={(e) => setCollateralAmountInput(e.target.value)}
+              style={{ margin: "10px 0" }}
+              addonAfter={"AVAX"}
+            />
+            {/* note text */}
+            <Button
+              type="primary"
+              size="large"
+              shape="round"
+              block
+              loading={isDepositCollateralTxPending}
+              onClick={handleDepositCollateral}
+            >
+              Deposit Collateral
+            </Button>
+          </Card>
+        </Col>
+
+        <Col span={12}>
+          <Card
+            style={{
+              maxWidth: 600,
+              margin: "0 auto",
+              borderRadius: "20px"
+            }}
+            title={
+              <Space>
+                <Text>Loan Manager (Sepolia)</Text>
+                <a
+                  href={`https://sepolia.etherscan.io/address/${CROSSLOAN_CONTRACT_ADDRESS}`}
+                  target="_blank"
+                >
+                  <ExportOutlined />
+                </a>
+              </Space>
+            }
+            bordered
+            hoverable
+            cover={
+              <img
+                src="./eth-logo.svg"
+                alt="eth-logo"
+                width={45}
+                height={45}
+                style={{ marginTop: "10px" }}
+              />
+            }
+            extra={
+              account && (
+                <Tooltip title="Your Balance on Sepolia">
+                  <Statistic
+                    loading={isSepoliaBalanceLoading}
+                    value={sepoliaBalance?.displayValue || ""}
+                    suffix={sepoliaBalance?.symbol || ""}
+                    prefix={<WalletOutlined />}
+                    precision={6}
+                    valueStyle={{
+                      // color: "#3f8600",
+                      fontSize: "14px",
+                      fontWeight: "bold"
+                    }}
+                  />
+                </Tooltip>
+              )
+            }
+          >
+            <Statistic
+              style={{ textAlign: "center" }}
+              loading={isLoanAmountLoading}
+              title={
+                <Text>
+                  Loan Amount{" "}
+                  <Popover content="You'll receive a loan equal to your collateral on Avalanche">
+                    <InfoCircleOutlined />
+                  </Popover>
+                </Text>
+              }
+              value={toEther(loanAmount || 0n)}
+              valueStyle={{ fontWeight: "bold" }}
+              suffix="ETH"
+            />
+            <Divider />
+            <label>Repay Loan: </label>
+            <Input
+              type="number"
+              size="large"
+              placeholder="Enter repayment amount (ETH)"
+              value={repayAmountInput}
+              onChange={(e) => setRepayAmountInput(e.target.value)}
+              style={{ margin: "27px 0" }}
+              addonAfter={"ETH"}
+            />
+            <Button
+              type="primary"
+              size="large"
+              shape="round"
+              block
+              loading={isRepayLoanTxPending}
+              onClick={handleRepayLoan}
+            >
+              Repay Loan
+            </Button>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Transaction Logs */}
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <Space direction="vertical" size="middle">
+          {
+            // Deposit Collateral Tx Logs
+            isDepositCollateralTxPending && (
+              <Text>Depositing Collateral in progress...</Text>
             )
           }
-          <SettingOutlined />
-        </Space>
-      }
-      style={{
-        maxWidth: 600,
-        margin: "0 auto",
-        padding: "20px",
-        borderRadius: "20px"
-      }}
-      actions={[
-        <Button
-          size="large"
-          type="primary"
-          key="bridge-btn"
-          loading={isBridgeRequestPending}
-          disabled={isBridgeRequestPending}
-          onClick={handleBridgeRequest}
-          block
-        >
-          Bridge
-        </Button>
-      ]}
-    >
-      {/* From Section */}
-      <div>
-        <Text type="secondary">Send</Text>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center"
-          }}
-        >
-          <Input
-            value={bridgeAmountInput}
-            type="number"
-            onChange={(e) => setBridgeAmountInput(e.target.value)}
-            placeholder="0.00"
-            variant="borderless"
-            style={{ fontSize: "28px", fontWeight: "bold" }}
-          />
-          <Select
-            defaultValue="xt-p"
-            value={fromToken}
-            style={{ maxWidth: 300 }}
-            onChange={setFromToken}
-          >
-            <Option value="xt-p">
-              <img src="./xt-logo.png" alt="xt" width="15" /> XT on{" "}
-              <img src="./poly-logo.svg" alt="polygon" width="15" /> Polygon
-            </Option>
-            <Option value="xt-s" disabled>
-              <img src="./xt-logo.png" alt="xt" width="15" /> XT on{" "}
-              <img src="./eth-logo.svg" alt="sepolia" width="10" /> Sepolia
-            </Option>
-          </Select>
-        </div>
-        <Text type="secondary">XT on Polygon</Text>
-        {/* Dummy exchange rate for ETH */}
-        <Space
-          style={{
-            float: "right",
-            marginTop: "10px"
-          }}
-        >
-          <Text type="secondary">Balance: {polygonXT?.displayValue || 0}</Text>
-          <Button
-            type="link"
-            onClick={() => {
-              setBridgeAmountInput(polygonXT?.displayValue);
-            }}
-          >
-            Max
-          </Button>
-        </Space>
-      </div>
-
-      <Divider>
-        <Button
-          icon={
-            <SwapOutlined
-              style={{
-                fontSize: "20px",
-                transform: "rotate(90deg) scaleY(-1)"
-              }}
-            />
-          }
-          shape="circle"
-          onClick={() => message.info("Two-way bridging is coming soon!")}
-        />
-      </Divider>
-
-      {/* To Section */}
-      <div>
-        <Text type="secondary">Receive</Text>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center"
-          }}
-        >
-          <Input
-            readOnly
-            value={bridgeAmountInput}
-            placeholder="0.00"
-            variant="borderless"
-            style={{ fontSize: "28px", fontWeight: "bold" }}
-          />
-          <Select
-            defaultValue="xt-s"
-            value={toToken}
-            style={{ maxWidth: 300 }}
-            onChange={setToToken}
-          >
-            <Option value="xt-s">
-              <img src="./xt-logo.png" alt="xt" width="15" /> XT on{" "}
-              <img src="./eth-logo.svg" alt="sepolia" width="10" /> Sepolia
-            </Option>
-            <Option value="xt-p" disabled>
-              <img src="./xt-logo.png" alt="xt" width="15" /> XT on{" "}
-              <img src="./poly-logo.svg" alt="polygon" width="15" /> Polygon
-            </Option>
-          </Select>
-        </div>
-        <Text
-          type="secondary"
-          style={{
-            float: "right"
-          }}
-        >
-          Balance: {sepoliaXT?.displayValue || 0}
-        </Text>
-      </div>
-      <Text type="secondary">XT on Sepolia</Text>
-
-      {/* Log Messages */}
-      <Divider />
-      <div style={{ textAlign: "center", color: "red", marginTop: "20px" }}>
-        <Space direction="vertical">
-          {/* General Check Logs */}
-          {log?.message && <Text type={log?.type}>{log.message}</Text>}
-          {/* Mint Logs */}
-          {isMintPending && (
-            <Text type="secondary">Minting in progress...</Text>
-          )}
-          {isMintError && (
-            <Text type="danger">
-              Minting failed! {mintTxError?.message || mintTxFailureReason}
-            </Text>
-          )}
-          {mintTransactionReceipt &&
-            mintTransactionReceipt?.transactionHash && (
-              <Text type="success">Minted 50 XT on Polygon successfully!</Text>
-            )}
-          {/* Bridge Logs */}
-          {isBridgeRequestPending && (
-            <Text type="secondary">Bridge Transaction in progress...</Text>
-          )}
-          {isBridgeRequestSuccess && (
-            <Text type="success">Transaction successful!</Text>
-          )}
-          {isBridgeRequestError && (
-            <Text type="danger">
-              Transaction failed! {bridgeRequestTxError?.message}
-            </Text>
-          )}
-          {bridgeRequestTxReceipt?.transactionHash && (
+          {isDepositCollateralTxSuccess && (
             <Space direction="vertical">
+              <Text strong>Collateral deposited successfully!</Text>
               <Text type="primary">
-                Note: It may take a few minutes for the balances to reflect on
-                the destination chain.
+                Note: It may take a few minutes to issue loan on destination
+                chain (Sepolia)
               </Text>
               <a
-                href={`https://polygonscan.com/tx/${bridgeRequestTxReceipt?.transactionHash}`}
+                href={`https://snowtrace.io/tx/${depositCollateralTxReceipt.transactionHash}`}
                 target="_blank"
-                rel="noreferrer"
               >
-                {" "}
                 View Source Transaction
               </a>
               <a
@@ -378,7 +361,7 @@ export default function App() {
                 View Reactive Transaction
               </a>
               <a
-                href={`https://sepolia.etherscan.io/token/${SEPOLIA_XT_CONTRACT_ADDRESS}?a=${account}`}
+                href={`https://sepolia.etherscan.io/address/${account}#internaltx`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -387,8 +370,55 @@ export default function App() {
               </a>
             </Space>
           )}
+          {isDepositCollateralTxError && (
+            <Text type="danger">
+              Failed to deposit collateral: {depositCollateralTxError?.message}
+            </Text>
+          )}
+          {
+            // Repay Loan Tx Logs
+            isRepayLoanTxPending && <Text>Repaying loan in progress...</Text>
+          }
+          {isRepayLoanTxSuccess && (
+            <Space direction="vertical">
+              <Text strong>Loan repaid successfully!</Text>
+              <Text type="primary">
+                Note: It may take a few minutes for the collateral to be
+                released on the source chain (Avalanche)
+              </Text>
+              <a
+                href={`https://sepolia.etherscan.io/tx/${repayLoanTxReceipt.transactionHash}`}
+                target="_blank"
+              >
+                View Source Transaction
+              </a>
+              <a
+                href={
+                  "https://kopli.reactscan.net/rvms/0xc7203561EF179333005a9b81215092413aB86aE9"
+                }
+                target="_blank"
+                rel="noreferrer"
+              >
+                {" "}
+                View Reactive Transaction
+              </a>
+              <a
+                href={`https://snowtrace.io/address/${account}/internalTx`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {" "}
+                View Destination Balance
+              </a>
+            </Space>
+          )}
+          {isRepayLoanTxError && (
+            <Text type="danger">
+              Failed to repay loan: {repayLoanTxError?.message}
+            </Text>
+          )}
         </Space>
       </div>
-    </Card>
+    </>
   );
 }

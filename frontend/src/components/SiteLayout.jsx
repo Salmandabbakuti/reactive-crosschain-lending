@@ -28,7 +28,7 @@ export default function SiteLayout({ children }) {
             margin: "0 12px"
           }}
         >
-          Reactive Bridge
+          Cross Lending
         </p>
         <ConnectWalletButton />
       </Header>
@@ -49,10 +49,10 @@ export default function SiteLayout({ children }) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          ©{new Date().getFullYear()} Reactive Bridge. Powered by Reactive
+          ©{new Date().getFullYear()} Cross Lending Dapp. Powered by Reactive
           Network
         </a>
-        <p style={{ fontSize: "12px" }}>v0.0.1</p>
+        <p style={{ fontSize: "12px" }}>v0.0.2</p>
       </Footer>
     </Layout>
   );

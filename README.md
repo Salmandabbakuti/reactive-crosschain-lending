@@ -182,7 +182,7 @@ https://github.com/user-attachments/assets/82e21e79-a70e-4f86-a24e-f793ef0cdada
 
 #### Workflow Example
 
-1. User deposits 0.004 AVAX as collateral on the origin chain(Avalanche).
+1. User deposits 0.0004 AVAX as collateral on the origin chain(Avalanche).
 
 https://snowtrace.io/tx/0xdf283239f64a65a9fe79c6ae3616b009c7a879c424347dc44a738300cf57c5c0
 
@@ -190,11 +190,11 @@ https://snowtrace.io/tx/0xdf283239f64a65a9fe79c6ae3616b009c7a879c424347dc44a7383
 
 https://kopli.reactscan.net/rvm/0xc7203561ef179333005a9b81215092413ab86ae9/45
 
-3. User receives a loan of 0.004 ETH on the destination chain(Sepolia).
+3. User receives a loan of 0.0004 ETH on the destination chain(Sepolia).
 
 https://sepolia.etherscan.io/tx/0xa64aceff981f2a89f8533cce34baad1fd742712ad941c780af13b52f3f025d4b
 
-4. User repays the partial loan amount of 0.002 ETH on the destination chain(Sepolia).
+4. User repays the partial loan amount of 0.0002 ETH on the destination chain(Sepolia).
 
 https://sepolia.etherscan.io/tx/0x47f31d40b36e932ea07df3fb36d31f816d34c8c935df53629c5dd76e7215bfb3
 
@@ -202,7 +202,7 @@ https://sepolia.etherscan.io/tx/0x47f31d40b36e932ea07df3fb36d31f816d34c8c935df53
 
 https://kopli.reactscan.net/rvm/0xc7203561ef179333005a9b81215092413ab86ae9/46
 
-6. User receives the collateral of 0.002 AVAX on the origin chain(Avalanche).
+6. User receives the collateral of 0.0002 AVAX on the origin chain(Avalanche).
 
 https://snowtrace.io/tx/0x601f804645eeb465f9aae3921c46c41d383f5278f12181975e5d0870585fca7c
 

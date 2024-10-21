@@ -224,6 +224,19 @@ export default function App() {
               value={collateralAmountInput}
               onChange={(e) => setCollateralAmountInput(e.target.value)}
               style={{ margin: "10px 0" }}
+              suffix={
+                <Button
+                  type="link"
+                  size="small"
+                  onClick={() =>
+                    setCollateralAmountInput(
+                      avalancheBalance?.displayValue || ""
+                    )
+                  }
+                >
+                  Max
+                </Button>
+              }
               addonAfter={"AVAX"}
             />
             {/* note text */}
@@ -312,6 +325,15 @@ export default function App() {
               value={repayAmountInput}
               onChange={(e) => setRepayAmountInput(e.target.value)}
               style={{ margin: "27px 0" }}
+              suffix={
+                <Button
+                  type="link"
+                  size="small"
+                  onClick={() => setRepayAmountInput(toEther(loanAmount || 0n))}
+                >
+                  Max
+                </Button>
+              }
               addonAfter={"ETH"}
             />
             <Button

@@ -1,5 +1,5 @@
 import { ConnectButton } from "thirdweb/react";
-import { sepolia, avalanche } from "thirdweb/chains";
+import { sepolia, polygon } from "thirdweb/chains";
 import { createWallet } from "thirdweb/wallets";
 import { thirdwebClient } from "../utils";
 
@@ -16,8 +16,8 @@ export default function ConnectWalletButton() {
   return (
     <ConnectButton
       client={thirdwebClient}
-      // chain={avalanche} // default chain to connect
-      chains={[avalanche, sepolia]} // chains to connect
+      chain={sepolia} // default chain to connect
+      chains={[sepolia, polygon]} // chains to connect
       wallets={thirdwebWallets}
       recommendedWallets={[
         thirdwebWallets[0],
@@ -39,8 +39,8 @@ export default function ConnectWalletButton() {
         }
       }}
       appMetadata={{
-        name: "Cross Lending Dapp",
-        description: "Cross Lending Dapp",
+        name: "Reactive Dapp Template",
+        description: "Reactive Dapp Template",
         url: "https://example.com",
         logoUrl: "https://example.com/logo.png"
       }}

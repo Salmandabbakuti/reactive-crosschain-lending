@@ -28,7 +28,7 @@ export default function SiteLayout({ children }) {
             margin: "0 12px"
           }}
         >
-          Cross Lending
+          Reactive Dapp Template
         </p>
         <ConnectWalletButton />
       </Header>
@@ -49,8 +49,7 @@ export default function SiteLayout({ children }) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          ©{new Date().getFullYear()} Cross Lending Dapp. Powered by Reactive
-          Network
+          ©{new Date().getFullYear()} Reactive Dapp. Powered by Reactive Network
         </a>
         <p style={{ fontSize: "12px" }}>v0.0.2</p>
       </Footer>
